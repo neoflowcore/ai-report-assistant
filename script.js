@@ -1,5 +1,7 @@
 const generateBtn = document.getElementById("generateBtn");
 const copyPromptBtn = document.getElementById("copyPromptBtn");
+const openChatGPTBtn = document.getElementById("openChatGPTBtn");
+const openGeminiBtn = document.getElementById("openGeminiBtn");
 const makeRevisionBtn = document.getElementById("makeRevisionBtn");
 const copyRevisionBtn = document.getElementById("copyRevisionBtn");
 
