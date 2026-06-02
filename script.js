@@ -1,7 +1,13 @@
 const generateBtn = document.getElementById("generateBtn");
-const copyBtn = document.getElementById("copyBtn");
+const copyPromptBtn = document.getElementById("copyPromptBtn");
+const makeRevisionBtn = document.getElementById("makeRevisionBtn");
+const copyRevisionBtn = document.getElementById("copyRevisionBtn");
+
 const resultPrompt = document.getElementById("resultPrompt");
-const copyMessage = document.getElementById("copyMessage");
+const revisionPrompt = document.getElementById("revisionPrompt");
+
+const promptMessage = document.getElementById("promptMessage");
+const revisionMessage = document.getElementById("revisionMessage");
 
 function getValue(id) {
   const value = document.getElementById(id).value.trim();
@@ -85,26 +91,79 @@ ${pastReportFormat}
 - 보고서 제목 후보 3개`;
 }
 
-generateBtn.addEventListener("click", () => {
-  const prompt = createReportPrompt();
-  resultPrompt.value = prompt;
-  copyMessage.textContent = "프롬프트가 생성되었습니다.";
-});
+function createRevisionPrompt() {
+  const draftText = getValue("draftText");
+  const revisionRequest = getValue("revisionRequest");
 
-copyBtn.addEventListener("click", async () => {
-  const text = resultPrompt.value.trim();
+  return `당신은 공공기관 내부 보고서의 품질을 개선하는 전문 검토자입니다.
+아래 보고서 초안을 검토하고, 수정 요청 사항을 반영하여 더 완성도 높은 보고서로 다듬어주세요.
+
+[1. 보고서 초안]
+${draftText}
+
+[2. 수정 요청 사항]
+${revisionRequest}
+
+[3. 수정 기준]
+- 공공기관 내부 보고서에 적합한 공식적이고 간결한 문체로 수정해주세요.
+- 문장이 장황한 부분은 간결하게 정리해주세요.
+- 근거가 부족한 표현은 보완하거나 "추가 확인 필요"로 표시해주세요.
+- 핵심 이슈, 정책적 시사점, 개선 방안이 잘 드러나도록 구조를 정리해주세요.
+- 필요하면 제목, 소제목, 표, 목록 형태를 활용해주세요.
+- 과장된 표현이나 단정적인 표현은 피해주세요.
+- 담당자가 바로 검토할 수 있도록 보고서 형식으로 정리해주세요.
+
+[4. 결과물 형식]
+다음 순서로 작성해주세요.
+
+1. 수정된 보고서 초안
+2. 주요 수정 사항 요약
+3. 추가 보완이 필요한 자료
+4. 검토자가 확인해야 할 쟁점`;
+}
+
+async function copyText(textArea, messageElement, successMessage, emptyMessage) {
+  const text = textArea.value.trim();
 
   if (!text) {
-    copyMessage.textContent = "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요.";
+    messageElement.textContent = emptyMessage;
     return;
   }
 
   try {
     await navigator.clipboard.writeText(text);
-    copyMessage.textContent = "생성된 프롬프트가 클립보드에 복사되었습니다.";
+    messageElement.textContent = successMessage;
   } catch (error) {
-    resultPrompt.select();
+    textArea.select();
     document.execCommand("copy");
-    copyMessage.textContent = "생성된 프롬프트가 복사되었습니다.";
+    messageElement.textContent = successMessage;
   }
+}
+
+generateBtn.addEventListener("click", () => {
+  resultPrompt.value = createReportPrompt();
+  promptMessage.textContent = "AI 보고서 작성용 프롬프트가 생성되었습니다.";
+});
+
+copyPromptBtn.addEventListener("click", () => {
+  copyText(
+    resultPrompt,
+    promptMessage,
+    "AI 보고서 작성용 프롬프트가 복사되었습니다.",
+    "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
+  );
+});
+
+makeRevisionBtn.addEventListener("click", () => {
+  revisionPrompt.value = createRevisionPrompt();
+  revisionMessage.textContent = "보고서 초안 수정용 프롬프트가 생성되었습니다.";
+});
+
+copyRevisionBtn.addEventListener("click", () => {
+  copyText(
+    revisionPrompt,
+    revisionMessage,
+    "보고서 초안 수정용 프롬프트가 복사되었습니다.",
+    "복사할 수정 프롬프트가 없습니다. 먼저 수정 프롬프트를 생성해주세요."
+  );
 });
