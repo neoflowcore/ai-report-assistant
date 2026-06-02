@@ -1,1 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 보고서 작성 프롬프트 생성기</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <p class="system-label">내부 업무 지원 시스템</p>
+      <h1>AI 보고서 작성 프롬프트 생성기</h1>
+      <p class="subtitle">
+        보고서 작성에 필요한 기초 정보를 입력하면 AI에게 바로 붙여넣을 수 있는 보고서 작성용 프롬프트를 생성합니다.
+      </p>
+    </div>
+  </header>
 
+  <main class="container">
+    <section class="panel input-panel">
+      <div class="panel-title">
+        <h2>입력 정보</h2>
+        <p>보고서 작성에 필요한 항목을 입력하세요.</p>
+      </div>
+
+      <form id="promptForm">
+        <div class="form-group">
+          <label for="reportTopic">보고서 주제</label>
+          <input
+            type="text"
+            id="reportTopic"
+            placeholder="예: 지역 청년 인구 유출 대응 방안 분석"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="analysisRegion">분석 지역</label>
+          <input
+            type="text"
+            id="analysisRegion"
+            placeholder="예: 인천광역시, 중구, 특정 생활권 등"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="referenceLinks">참고 자료 링크</label>
+          <textarea
+            id="referenceLinks"
+            rows="4"
+            placeholder="예: 통계청 자료, 지자체 보도자료, 관련 연구보고서 URL 등을 입력"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="keyIssues">핵심 이슈</label>
+          <textarea
+            id="keyIssues"
+            rows="5"
+            placeholder="예: 청년층 일자리 부족, 주거비 부담, 교통 접근성 문제 등"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="numericData">수치 자료</label>
+          <textarea
+            id="numericData"
+            rows="5"
+            placeholder="예: 최근 5년간 인구 변화, 고용률, 예산 규모, 설문조사 결과 등"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="majorCases">주요 사례</label>
+          <textarea
+            id="majorCases"
+            rows="5"
+            placeholder="예: 국내외 우수 정책 사례, 타 지자체 사업 사례 등"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="pastReportFormat">과거 우수 보고서 참고 내용</label>
+          <textarea
+            id="pastReportFormat"
+            rows="6"
+            placeholder="예: 목차 구성, 문체, 표·그래프 활용 방식, 결론 작성 방식 등"
+          ></textarea>
+        </div>
+
+        <div class="button-row">
+          <button type="button" id="generateBtn" class="primary-btn">
+            프롬프트 생성
+          </button>
+          <button type="reset" class="secondary-btn">
+            입력 초기화
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel result-panel">
+      <div class="panel-title">
+        <h2>생성 결과</h2>
+        <p>아래 내용을 복사하여 AI에게 붙여넣으세요.</p>
+      </div>
+
+      <textarea
+        id="resultPrompt"
+        class="result-box"
+        rows="24"
+        readonly
+        placeholder="프롬프트 생성 버튼을 누르면 결과가 표시됩니다."
+      ></textarea>
+
+      <div class="button-row result-buttons">
+        <button type="button" id="copyBtn" class="primary-btn">
+          생성된 프롬프트 복사
+        </button>
+      </div>
+
+      <p id="copyMessage" class="copy-message" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>본 페이지는 서버와 데이터베이스 없이 브라우저에서만 작동합니다.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
