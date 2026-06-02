@@ -346,3 +346,45 @@ textarea {
     flex-direction: column;
   }
 }
+
+.prompt-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-chatgpt {
+  background: #111827;
+  color: #ffffff;
+}
+
+.btn-chatgpt:hover {
+  background: #000000;
+}
+
+.btn-gemini {
+  background: #315f86;
+  color: #ffffff;
+}
+
+.btn-gemini:hover {
+  background: #244966;
+}
+
+.message.success {
+  color: #2f6f4e;
+  font-weight: 700;
+}
+
+.message.error {
+  color: #b42318;
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .prompt-action-buttons {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
