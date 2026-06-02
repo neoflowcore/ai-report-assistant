@@ -3,224 +3,976 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 보고서 작성 보조 시스템</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>모두의 부동산 보고서</title>
+
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --primary: #234f73;
+      --primary-dark: #163952;
+      --secondary: #4f6f8f;
+      --success: #2f6f4e;
+      --warning: #b7791f;
+      --danger: #b42318;
+      --line: #d8e2ec;
+      --soft-line: #edf1f5;
+      --text: #1f2933;
+      --muted: #667085;
+      --light: #f8fafc;
+      --white: #ffffff;
+      --shadow: 0 10px 28px rgba(35, 79, 115, 0.09);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .top-bar {
+      background: linear-gradient(135deg, #234f73, #163952);
+      color: var(--white);
+      border-bottom: 4px solid #d6a21e;
+    }
+
+    .top-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 34px 22px 32px;
+    }
+
+    .system-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 10px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: #e8eef5;
+      font-size: 15px;
+    }
+
+    .page {
+      max-width: 1380px;
+      margin: 28px auto 36px;
+      padding: 0 22px;
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--soft-line);
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+    }
+
+    .card-head.row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .card-body {
+      padding: 22px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      min-width: 42px;
+      height: 30px;
+      padding: 0 10px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: var(--primary);
+      color: var(--white);
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .badge.green {
+      background: var(--success);
+    }
+
+    .badge.gold {
+      background: var(--warning);
+    }
+
+    .section-title h2 {
+      margin: 0;
+      font-size: 20px;
+      color: var(--primary-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .section-title p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .input-card {
+      border-top: 5px solid var(--primary);
+    }
+
+    .guide-card {
+      border-top: 5px solid var(--secondary);
+    }
+
+    .prompt-card {
+      border-top: 5px solid var(--success);
+    }
+
+    .revision-card {
+      border-top: 5px solid var(--warning);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #263849;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fbfdff;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(35, 79, 115, 0.12);
+    }
+
+    .usage-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: step;
+    }
+
+    .usage-list li {
+      position: relative;
+      padding: 14px 14px 14px 54px;
+      margin-bottom: 12px;
+      background: var(--light);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .usage-list li::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 15px;
+      top: 15px;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      background: var(--primary-dark);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .usage-list strong {
+      display: block;
+      color: var(--primary-dark);
+      margin-bottom: 2px;
+    }
+
+    .usage-list span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .button-row,
+    .prompt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .prompt-actions {
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 11px;
+      padding: 11px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+      box-shadow: 0 5px 14px rgba(35, 79, 115, 0.22);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-light {
+      background: #ffffff;
+      color: var(--primary-dark);
+      border: 1px solid var(--line);
+    }
+
+    .btn-light:hover {
+      background: var(--light);
+    }
+
+    .btn-copy {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .btn-copy:hover {
+      background: #255a3e;
+    }
+
+    .btn-chatgpt {
+      background: #111827;
+      color: var(--white);
+    }
+
+    .btn-chatgpt:hover {
+      background: #000000;
+    }
+
+    .btn-gemini {
+      background: #315f86;
+      color: var(--white);
+    }
+
+    .btn-gemini:hover {
+      background: #244966;
+    }
+
+    .btn-revision {
+      background: var(--warning);
+      color: var(--white);
+      box-shadow: 0 5px 14px rgba(183, 121, 31, 0.22);
+    }
+
+    .btn-revision:hover {
+      background: #955f15;
+    }
+
+    .result-box {
+      min-height: 280px;
+      background: #f8fafc;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .result-box.small {
+      min-height: 190px;
+      margin-top: 14px;
+    }
+
+    .message {
+      min-height: 23px;
+      margin: 10px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .message.success {
+      color: var(--success);
+      font-weight: 800;
+    }
+
+    .message.error {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    .notice {
+      margin: 0;
+      padding: 13px 15px;
+      border-radius: 13px;
+      background: #f7fafc;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .footer {
+      max-width: 1380px;
+      margin: 0 auto 30px;
+      padding: 0 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1080px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+
+      .prompt-actions {
+        justify-content: flex-start;
+      }
+
+      .card-head.row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .top-inner {
+        padding: 28px 18px;
+      }
+
+      h1 {
+        font-size: 26px;
+      }
+
+      .page {
+        margin-top: 20px;
+        padding: 0 14px;
+      }
+
+      .card-head,
+      .card-body {
+        padding: 18px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .button-row,
+      .prompt-actions {
+        width: 100%;
+      }
+
+      .result-box {
+        min-height: 230px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="header-inner">
-      <div>
-        <p class="system-label">공공기관 내부 업무 지원</p>
-        <h1>AI 보고서 작성 보조 시스템</h1>
-        <p class="subtitle">
-          보고서 재료를 입력하고, AI에게 붙여넣을 프롬프트를 자동 생성하세요.
-        </p>
-      </div>
+  <header class="top-bar">
+    <div class="top-inner">
+      <p class="system-label">공공기관 내부 업무용 보고서 지원 도구</p>
+      <h1>모두의 부동산 보고서</h1>
+      <p class="subtitle">
+        부동산 정책·지역 현황·수치 자료를 바탕으로 AI 보고서 작성용 프롬프트와 수정 프롬프트를 생성합니다.
+      </p>
     </div>
   </header>
 
-  <main class="layout">
-    <!-- 왼쪽: 보고서 재료 입력 영역 -->
-    <section class="left-column">
-      <div class="section-heading">
-        <span class="step-badge">01</span>
-        <div>
-          <h2>보고서 재료 입력</h2>
-          <p>보고서 작성에 필요한 기초 자료를 순서대로 입력하세요.</p>
-        </div>
-      </div>
-
-      <form id="promptForm" class="card input-card">
-        <div class="form-group">
-          <label for="reportTopic">보고서 주제</label>
-          <input
-            type="text"
-            id="reportTopic"
-            placeholder="예: 지역 청년 인구 유출 대응 방안 분석"
-          />
+  <main class="page">
+    <section class="column">
+      <article class="card input-card">
+        <div class="card-head">
+          <div class="section-title">
+            <span class="badge">01</span>
+            <div>
+              <h2>보고서 재료 입력</h2>
+              <p>보고서 주제, 분석 지역, 수치 자료, 사례, 참고 보고서 내용을 입력하세요.</p>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="analysisRegion">분석 지역</label>
-          <input
-            type="text"
-            id="analysisRegion"
-            placeholder="예: 인천광역시, 중구, 특정 생활권 등"
-          />
-        </div>
+        <div class="card-body">
+          <form id="promptForm">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="reportTopic">보고서 주제</label>
+                <input
+                  type="text"
+                  id="reportTopic"
+                  placeholder="예: 원도심 주거환경 변화와 정책 대응 방향"
+                />
+              </div>
 
-        <div class="form-group">
-          <label for="referenceLinks">참고 자료 링크</label>
-          <textarea
-            id="referenceLinks"
-            rows="4"
-            placeholder="예: 통계청, 지자체 보도자료, 연구보고서 링크 등"
-          ></textarea>
-        </div>
+              <div class="form-group">
+                <label for="analysisRegion">분석 지역</label>
+                <input
+                  type="text"
+                  id="analysisRegion"
+                  placeholder="예: 인천광역시 중구, 특정 생활권 등"
+                />
+              </div>
 
-        <div class="form-group">
-          <label for="keyIssues">핵심 이슈</label>
-          <textarea
-            id="keyIssues"
-            rows="5"
-            placeholder="예: 청년층 일자리 부족, 주거비 부담, 교통 접근성 문제 등"
-          ></textarea>
-        </div>
+              <div class="form-group full">
+                <label for="referenceLinks">참고 자료 링크</label>
+                <textarea
+                  id="referenceLinks"
+                  rows="4"
+                  placeholder="통계청, 국토교통부, 지자체 보도자료, 연구보고서 링크 등을 입력하세요."
+                ></textarea>
+              </div>
 
-        <div class="form-group">
-          <label for="numericData">수치 자료</label>
-          <textarea
-            id="numericData"
-            rows="5"
-            placeholder="예: 최근 5년간 인구 변화, 고용률, 예산 규모, 설문조사 결과 등"
-          ></textarea>
-        </div>
+              <div class="form-group full">
+                <label for="keyIssues">핵심 이슈</label>
+                <textarea
+                  id="keyIssues"
+                  rows="5"
+                  placeholder="예: 전세가격 변동, 노후 주택 증가, 공실률 변화, 생활SOC 부족 등"
+                ></textarea>
+              </div>
 
-        <div class="form-group">
-          <label for="majorCases">주요 사례</label>
-          <textarea
-            id="majorCases"
-            rows="5"
-            placeholder="예: 국내외 우수 정책 사례, 타 지자체 사업 사례 등"
-          ></textarea>
-        </div>
+              <div class="form-group full">
+                <label for="numericData">수치 자료</label>
+                <textarea
+                  id="numericData"
+                  rows="5"
+                  placeholder="예: 매매가격지수, 전세가격지수, 인구 변화, 주택 공급량, 공실률, 거래량 등"
+                ></textarea>
+              </div>
 
-        <div class="form-group">
-          <label for="pastReportFormat">과거 우수 보고서 참고 내용</label>
-          <textarea
-            id="pastReportFormat"
-            rows="6"
-            placeholder="예: 목차 구성, 문체, 표·그래프 활용 방식, 결론 작성 방식 등"
-          ></textarea>
-        </div>
+              <div class="form-group full">
+                <label for="majorCases">주요 사례</label>
+                <textarea
+                  id="majorCases"
+                  rows="5"
+                  placeholder="예: 타 지자체 정책 사례, 도시재생 사례, 주거 안정 사업 사례 등"
+                ></textarea>
+              </div>
 
-        <div class="button-row">
-          <button type="button" id="generateBtn" class="btn btn-primary">
-            ② AI 프롬프트 생성
-          </button>
-          <button type="reset" class="btn btn-light">
-            입력값 초기화
-          </button>
+              <div class="form-group full">
+                <label for="pastReportFormat">과거 우수 보고서 참고 내용</label>
+                <textarea
+                  id="pastReportFormat"
+                  rows="6"
+                  placeholder="과거 우수 보고서의 목차, 문체, 수치 제시 방식, 결론 구조 등을 입력하세요."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button type="button" id="generateBtn" class="btn btn-primary">
+                ② AI 프롬프트 생성
+              </button>
+              <button type="reset" class="btn btn-light">
+                입력값 초기화
+              </button>
+            </div>
+          </form>
         </div>
-      </form>
+      </article>
     </section>
 
-    <!-- 오른쪽: 사용 방법 + 결과 + 보고서 초안 수정 영역 -->
-    <section class="right-column">
-      <div class="card guide-card">
-        <div class="section-heading compact">
-          <span class="step-badge">안내</span>
-          <div>
-            <h2>사용 순서</h2>
-            <p>아래 순서대로 진행하면 됩니다.</p>
+    <section class="column">
+      <article class="card guide-card">
+        <div class="card-head">
+          <div class="section-title">
+            <span class="badge">안내</span>
+            <div>
+              <h2>사용 방법</h2>
+              <p>아래 순서대로 진행하면 보고서 초안 작성 흐름이 정리됩니다.</p>
+            </div>
           </div>
         </div>
 
-        <ol class="usage-list">
-          <li>
-            <strong>보고서 재료 입력</strong>
-            <span>왼쪽 입력란에 주제, 지역, 자료, 이슈, 사례를 입력합니다.</span>
-          </li>
-          <li>
-            <strong>AI 프롬프트 생성</strong>
-            <span>프롬프트 생성 버튼을 눌러 AI에게 줄 지시문을 만듭니다.</span>
-          </li>
-          <li>
-            <strong>프롬프트 복사</strong>
-            <span>생성된 내용을 복사해 ChatGPT 등 AI 도구에 붙여넣습니다.</span>
-          </li>
-          <li>
-            <strong>보고서 초안 수정</strong>
-            <span>AI가 작성한 초안을 아래 수정 영역에 붙여넣고 보완 지시문을 만듭니다.</span>
-          </li>
-        </ol>
-      </div>
+        <div class="card-body">
+          <ol class="usage-list">
+            <li>
+              <strong>보고서 재료 입력</strong>
+              <span>왼쪽에 보고서 주제, 지역, 이슈, 수치, 사례, 참고 보고서 내용을 입력합니다.</span>
+            </li>
+            <li>
+              <strong>AI 프롬프트 생성</strong>
+              <span>입력값을 바탕으로 보고서 초안 작성용 프롬프트를 생성합니다.</span>
+            </li>
+            <li>
+              <strong>복사 후 AI 도구 열기</strong>
+              <span>ChatGPT 또는 Gemini를 열고 복사된 프롬프트를 붙여넣습니다.</span>
+            </li>
+            <li>
+              <strong>보고서 초안 보완</strong>
+              <span>AI가 작성한 초안을 수정 영역에 붙여넣고 보완 지시문을 생성합니다.</span>
+            </li>
+          </ol>
 
-      <div class="card result-card">
-        <div class="card-header">
-          <div>
-            <span class="step-badge">03</span>
-            <h2>AI 보고서 작성용 프롬프트</h2>
-          </div>
-          
-<div class="prompt-action-buttons">
-  <button type="button" id="copyPromptBtn" class="btn btn-copy">
-    프롬프트 복사
-  </button>
-
-  <button type="button" id="openChatGPTBtn" class="btn btn-chatgpt">
-    복사 후 ChatGPT 열기
-  </button>
-
-  <button type="button" id="openGeminiBtn" class="btn btn-gemini">
-    복사 후 Gemini 열기
-  </button>
-</div>
+          <p class="notice">
+            입력한 내용은 서버나 데이터베이스에 저장되지 않고, 사용자의 브라우저 안에서만 처리됩니다.
+          </p>
         </div>
+      </article>
 
-        <textarea
-          id="resultPrompt"
-          class="result-box"
-          rows="12"
-          readonly
-          placeholder="왼쪽에서 보고서 재료를 입력한 뒤 ‘AI 프롬프트 생성’ 버튼을 누르세요."
-        ></textarea>
+      <article class="card prompt-card">
+        <div class="card-head row">
+          <div class="section-title">
+            <span class="badge green">03</span>
+            <div>
+              <h2>AI 보고서 작성용 프롬프트</h2>
+              <p>생성된 프롬프트를 복사해 AI 도구에 붙여넣으세요.</p>
+            </div>
+          </div>
 
-        <p id="promptMessage" class="message" aria-live="polite"></p>
-      </div>
-
-      <div class="card revision-card">
-        <div class="card-header">
-          <div>
-            <span class="step-badge">04</span>
-            <h2>보고서 초안 수정 영역</h2>
+          <div class="prompt-actions">
+            <button type="button" id="copyPromptBtn" class="btn btn-copy">
+              프롬프트 복사
+            </button>
+            <button type="button" id="openChatGPTBtn" class="btn btn-chatgpt">
+              복사 후 ChatGPT 열기
+            </button>
+            <button type="button" id="openGeminiBtn" class="btn btn-gemini">
+              복사 후 Gemini 열기
+            </button>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="draftText">AI가 작성한 보고서 초안</label>
+        <div class="card-body">
           <textarea
-            id="draftText"
-            rows="7"
-            placeholder="AI가 작성한 보고서 초안을 여기에 붙여넣으세요."
+            id="resultPrompt"
+            class="result-box"
+            rows="12"
+            readonly
+            placeholder="왼쪽에서 보고서 재료를 입력한 뒤 ‘AI 프롬프트 생성’ 버튼을 누르세요."
           ></textarea>
+          <p id="promptMessage" class="message" aria-live="polite"></p>
+        </div>
+      </article>
+
+      <article class="card revision-card">
+        <div class="card-head">
+          <div class="section-title">
+            <span class="badge gold">04</span>
+            <div>
+              <h2>보고서 초안 수정 영역</h2>
+              <p>AI가 작성한 초안을 붙여넣고 수정 요청을 생성하세요.</p>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="revisionRequest">수정 요청 사항</label>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="draftText">AI가 작성한 보고서 초안</label>
+            <textarea
+              id="draftText"
+              rows="7"
+              placeholder="AI가 작성한 보고서 초안을 여기에 붙여넣으세요."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="revisionRequest">수정 요청 사항</label>
+            <textarea
+              id="revisionRequest"
+              rows="4"
+              placeholder="예: 문체를 더 공공기관 보고서답게 수정, 수치 해석 보완, 결론 강화 등"
+            ></textarea>
+          </div>
+
+          <div class="button-row">
+            <button type="button" id="makeRevisionBtn" class="btn btn-revision">
+              수정 프롬프트 생성
+            </button>
+            <button type="button" id="copyRevisionBtn" class="btn btn-copy">
+              수정 프롬프트 복사
+            </button>
+          </div>
+
           <textarea
-            id="revisionRequest"
-            rows="4"
-            placeholder="예: 문체를 더 공공기관 보고서답게 수정, 근거 중심으로 보완, 결론 강화 등"
+            id="revisionPrompt"
+            class="result-box small"
+            rows="8"
+            readonly
+            placeholder="수정 프롬프트 생성 버튼을 누르면 결과가 표시됩니다."
           ></textarea>
+
+          <p id="revisionMessage" class="message" aria-live="polite"></p>
         </div>
-
-        <div class="button-row">
-          <button type="button" id="makeRevisionBtn" class="btn btn-secondary">
-            수정 프롬프트 생성
-          </button>
-          <button type="button" id="copyRevisionBtn" class="btn btn-copy">
-            수정 프롬프트 복사
-          </button>
-        </div>
-
-        <textarea
-          id="revisionPrompt"
-          class="result-box small"
-          rows="8"
-          readonly
-          placeholder="수정 프롬프트 생성 버튼을 누르면 결과가 표시됩니다."
-        ></textarea>
-
-        <p id="revisionMessage" class="message" aria-live="polite"></p>
-      </div>
+      </article>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <p>본 페이지는 서버와 데이터베이스 없이 브라우저에서만 작동합니다.</p>
+  <footer class="footer">
+    <p>모두의 부동산 보고서 · 정적 웹페이지 기반 내부 업무 보조 도구</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script>
+    const generateBtn = document.getElementById("generateBtn");
+    const copyPromptBtn = document.getElementById("copyPromptBtn");
+    const openChatGPTBtn = document.getElementById("openChatGPTBtn");
+    const openGeminiBtn = document.getElementById("openGeminiBtn");
+    const makeRevisionBtn = document.getElementById("makeRevisionBtn");
+    const copyRevisionBtn = document.getElementById("copyRevisionBtn");
+
+    const resultPrompt = document.getElementById("resultPrompt");
+    const revisionPrompt = document.getElementById("revisionPrompt");
+
+    const promptMessage = document.getElementById("promptMessage");
+    const revisionMessage = document.getElementById("revisionMessage");
+
+    function getValue(id) {
+      const element = document.getElementById(id);
+      const value = element ? element.value.trim() : "";
+      return value || "미입력";
+    }
+
+    function createReportPrompt() {
+      const reportTopic = getValue("reportTopic");
+      const analysisRegion = getValue("analysisRegion");
+      const referenceLinks = getValue("referenceLinks");
+      const keyIssues = getValue("keyIssues");
+      const numericData = getValue("numericData");
+      const majorCases = getValue("majorCases");
+      const pastReportFormat = getValue("pastReportFormat");
+
+      return `당신은 공공기관 부동산 정책보고서, 지역 현황 보고서, 검토보고서 작성에 능숙한 전문 보고서 작성 보조 AI입니다.
+아래 입력 자료를 바탕으로 사용자가 바로 보고서 초안으로 활용할 수 있는 본문 중심의 보고서를 작성해주세요.
+
+[중요 작업 원칙]
+1. 과거 우수 보고서 참고 내용은 문장을 그대로 복사하지 말고 제목 구조, 목차 구성, 문체, 문단 흐름, 수치 제시 방식, 결론 도출 방식만 분석하여 참고해주세요.
+2. 새 보고서의 주제, 지역, 참고 자료, 핵심 이슈, 수치 자료, 주요 사례를 참고 보고서의 형식과 논리 구조에 맞게 재구성해주세요.
+3. 참고 보고서와 유사한 문장, 표현, 문단을 그대로 재사용하지 마세요.
+4. 자료가 부족하거나 근거가 불명확한 내용은 임의로 만들지 말고 반드시 "추가 확인 필요"라고 표시해주세요.
+5. 최종 출력은 설명문이나 작성 과정이 아니라 실제 보고서 초안으로 바로 활용할 수 있는 본문 중심으로 작성해주세요.
+
+────────────────────────
+[1. 보고서 주제]
+${reportTopic}
+
+[2. 분석 지역]
+${analysisRegion}
+
+[3. 참고 자료 및 링크]
+${referenceLinks}
+
+[4. 핵심 이슈]
+${keyIssues}
+
+[5. 수치 자료]
+${numericData}
+
+[6. 주요 사례]
+${majorCases}
+
+[7. 과거 우수 보고서 참고 내용]
+${pastReportFormat}
+────────────────────────
+
+[1단계. 과거 우수 보고서 형식 분석]
+과거 우수 보고서 참고 내용을 내부적으로 분석하되, 분석 결과를 장황하게 따로 출력하지 말고 최종 보고서 구조에 반영해주세요.
+
+분석 항목:
+- 제목 구조
+- 목차 구성
+- 문체와 표현 방식
+- 문단 흐름
+- 수치 제시 방식
+- 결론 도출 방식
+
+[2단계. 새 입력 자료 재구성]
+- 보고서 주제는 전체 문제의식과 제목에 반영
+- 분석 지역은 현황 분석, 지역 특성, 정책 적용 가능성에 반영
+- 참고 자료와 링크는 근거 자료로 활용
+- 핵심 이슈는 문제점 및 쟁점 분석에 반영
+- 수치 자료는 현황 분석과 정책적 시사점 도출에 반영
+- 주요 사례는 비교 사례 또는 벤치마킹 사례로 반영
+- 과거 우수 보고서 참고 내용은 형식과 논리 전개 방식에만 반영
+
+[3단계. 수치 자료 표현 방식]
+수치 자료는 단순 나열하지 말고 보고서 문장 안에서 자연스럽게 해석해주세요.
+- 증가, 상승, 확대, 개선, 감소, 하락, 축소, 악화, 보합 등 방향성을 판단할 수 있으면 반영
+- 두 개 이상의 시점이나 비교 대상이 있으면 변화 추세 해석
+- 단일 수치만 있는 경우에는 무리하게 추세를 만들지 말고 현재 수준 중심으로 설명
+- 방향성 판단 근거가 부족하면 "방향성 추가 확인 필요"라고 표시
+- 출처가 명확하지 않은 수치는 "제공 자료 기준"이라고 표시
+- 필요한 경우 표로 정리하되, 표 이후에는 반드시 정책적 의미를 문장으로 해석
+
+[4단계. 최종 보고서 출력 형식]
+아래 형식을 기본으로 하되, 과거 우수 보고서의 구조가 더 적합하면 그 형식에 맞게 조정해주세요.
+
+1. 보고서 제목
+2. 작성 배경 및 필요성
+3. 지역 현황 및 부동산 관련 동향
+4. 핵심 이슈 및 문제점
+5. 수치 자료 기반 시사점
+6. 주요 사례 검토
+7. 정책적 시사점
+8. 추진 방향 및 개선 방안
+9. 기대 효과
+10. 결론
+11. 추가 확인 필요 자료
+
+[금지 사항]
+- 참고 보고서 문장 그대로 복사 금지
+- 제공되지 않은 수치나 사례 임의 생성 금지
+- 근거 없는 정책 효과 단정 금지
+- 자료 부족 부분을 추측으로 채우기 금지
+
+위 기준에 따라 바로 활용 가능한 보고서 초안을 작성해주세요.`;
+    }
+
+    function createRevisionPrompt() {
+      const draftText = getValue("draftText");
+      const revisionRequest = getValue("revisionRequest");
+
+      return `당신은 공공기관 내부 보고서의 품질을 개선하는 전문 검토자입니다.
+아래 보고서 초안을 검토하고 수정 요청 사항을 반영하여 더 완성도 높은 보고서로 다듬어주세요.
+
+[1. 보고서 초안]
+${draftText}
+
+[2. 수정 요청 사항]
+${revisionRequest}
+
+[3. 수정 기준]
+- 공공기관 내부 보고서에 적합한 공식적이고 간결한 문체로 수정
+- 문장이 장황한 부분은 간결하게 정리
+- 근거가 부족한 표현은 보완하거나 "추가 확인 필요"로 표시
+- 핵심 이슈, 정책적 시사점, 개선 방안이 잘 드러나도록 구조 정리
+- 필요하면 제목, 소제목, 표, 목록 형태 활용
+- 과장된 표현이나 단정적인 표현 지양
+- 담당자가 바로 검토할 수 있도록 보고서 형식으로 정리
+
+[4. 결과물 형식]
+1. 수정된 보고서 초안
+2. 주요 수정 사항 요약
+3. 추가 보완이 필요한 자료
+4. 검토자가 확인해야 할 쟁점`;
+    }
+
+    function showMessage(messageElement, message, type) {
+      if (!messageElement) return;
+
+      messageElement.textContent = message;
+      messageElement.classList.remove("success", "error");
+
+      if (type) {
+        messageElement.classList.add(type);
+      }
+    }
+
+    function fallbackCopy(textArea) {
+      try {
+        if (!textArea) return false;
+
+        const wasReadonly = textArea.hasAttribute("readonly");
+
+        if (wasReadonly) {
+          textArea.removeAttribute("readonly");
+        }
+
+        textArea.focus();
+        textArea.select();
+        textArea.setSelectionRange(0, textArea.value.length);
+
+        const copied = document.execCommand("copy");
+
+        if (wasReadonly) {
+          textArea.setAttribute("readonly", true);
+        }
+
+        window.getSelection().removeAllRanges();
+        return copied;
+      } catch (error) {
+        if (textArea) {
+          textArea.setAttribute("readonly", true);
+        }
+
+        return false;
+      }
+    }
+
+    async function copyText(textArea, messageElement, successMessage, emptyMessage) {
+      const text = textArea ? textArea.value.trim() : "";
+
+      if (!text) {
+        showMessage(messageElement, emptyMessage, "error");
+        return false;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          showMessage(messageElement, successMessage, "success");
+          return true;
+        }
+
+        const copied = fallbackCopy(textArea);
+
+        if (copied) {
+          showMessage(messageElement, successMessage, "success");
+          return true;
+        }
+
+        showMessage(
+          messageElement,
+          "자동 복사에 실패했습니다. 프롬프트 영역을 직접 선택해 복사해주세요.",
+          "error"
+        );
+
+        return false;
+      } catch (error) {
+        const copied = fallbackCopy(textArea);
+
+        if (copied) {
+          showMessage(messageElement, successMessage, "success");
+          return true;
+        }
+
+        showMessage(
+          messageElement,
+          "브라우저 보안 설정으로 자동 복사에 실패했습니다. 프롬프트 영역을 직접 선택해 복사해주세요.",
+          "error"
+        );
+
+        return false;
+      }
+    }
+
+    generateBtn.addEventListener("click", () => {
+      resultPrompt.value = createReportPrompt();
+      showMessage(promptMessage, "AI 보고서 작성용 프롬프트가 생성되었습니다.", "success");
+    });
+
+    copyPromptBtn.addEventListener("click", () => {
+      copyText(
+        resultPrompt,
+        promptMessage,
+        "AI 보고서 작성용 프롬프트가 복사되었습니다.",
+        "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
+      );
+    });
+
+    openChatGPTBtn.addEventListener("click", async () => {
+      const copied = await copyText(
+        resultPrompt,
+        promptMessage,
+        "프롬프트가 복사되었습니다. ChatGPT를 새 창으로 엽니다.",
+        "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
+      );
+
+      if (copied) {
+        window.open("https://chatgpt.com/", "_blank");
+      }
+    });
+
+    openGeminiBtn.addEventListener("click", async () => {
+      const copied = await copyText(
+        resultPrompt,
+        promptMessage,
+        "프롬프트가 복사되었습니다. Gemini를 새 창으로 엽니다.",
+        "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
+      );
+
+      if (copied) {
+        window.open("https://gemini.google.com/app", "_blank");
+      }
+    });
+
+    makeRevisionBtn.addEventListener("click", () => {
+      revisionPrompt.value = createRevisionPrompt();
+      showMessage(revisionMessage, "보고서 초안 수정용 프롬프트가 생성되었습니다.", "success");
+    });
+
+    copyRevisionBtn.addEventListener("click", () => {
+      copyText(
+        revisionPrompt,
+        revisionMessage,
+        "보고서 초안 수정용 프롬프트가 복사되었습니다.",
+        "복사할 수정 프롬프트가 없습니다. 먼저 수정 프롬프트를 생성해주세요."
+      );
+    });
+  </script>
 </body>
 </html>
