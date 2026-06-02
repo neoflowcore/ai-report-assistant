@@ -12,7 +12,8 @@ const promptMessage = document.getElementById("promptMessage");
 const revisionMessage = document.getElementById("revisionMessage");
 
 function getValue(id) {
-  const value = document.getElementById(id).value.trim();
+  const element = document.getElementById(id);
+  const value = element ? element.value.trim() : "";
   return value || "미입력";
 }
 
@@ -208,27 +209,103 @@ ${revisionRequest}
 4. 검토자가 확인해야 할 쟁점`;
 }
 
+function showMessage(messageElement, message, type) {
+  if (!messageElement) return;
+
+  messageElement.textContent = message;
+  messageElement.classList.remove("success", "error");
+
+  if (type) {
+    messageElement.classList.add(type);
+  }
+}
+
+function fallbackCopy(textArea) {
+  try {
+    if (!textArea) return false;
+
+    const wasReadonly = textArea.hasAttribute("readonly");
+
+    if (wasReadonly) {
+      textArea.removeAttribute("readonly");
+    }
+
+    textArea.focus();
+    textArea.select();
+    textArea.setSelectionRange(0, textArea.value.length);
+
+    const copied = document.execCommand("copy");
+
+    if (wasReadonly) {
+      textArea.setAttribute("readonly", true);
+    }
+
+    window.getSelection().removeAllRanges();
+
+    return copied;
+  } catch (error) {
+    if (textArea) {
+      textArea.setAttribute("readonly", true);
+    }
+
+    return false;
+  }
+}
+
 async function copyText(textArea, messageElement, successMessage, emptyMessage) {
-  const text = textArea.value.trim();
+  const text = textArea ? textArea.value.trim() : "";
 
   if (!text) {
-    messageElement.textContent = emptyMessage;
-    return;
+    showMessage(messageElement, emptyMessage, "error");
+    return false;
   }
 
   try {
-    await navigator.clipboard.writeText(text);
-    messageElement.textContent = successMessage;
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      showMessage(messageElement, successMessage, "success");
+      return true;
+    }
+
+    const copied = fallbackCopy(textArea);
+
+    if (copied) {
+      showMessage(messageElement, successMessage, "success");
+      return true;
+    }
+
+    showMessage(
+      messageElement,
+      "자동 복사에 실패했습니다. 프롬프트 영역을 직접 선택해 복사해주세요.",
+      "error"
+    );
+
+    return false;
   } catch (error) {
-    textArea.select();
-    document.execCommand("copy");
-    messageElement.textContent = successMessage;
+    const copied = fallbackCopy(textArea);
+
+    if (copied) {
+      showMessage(messageElement, successMessage, "success");
+      return true;
+    }
+
+    showMessage(
+      messageElement,
+      "브라우저 보안 설정으로 자동 복사에 실패했습니다. 프롬프트 영역을 직접 선택해 복사해주세요.",
+      "error"
+    );
+
+    return false;
   }
 }
 
 generateBtn.addEventListener("click", () => {
   resultPrompt.value = createReportPrompt();
-  promptMessage.textContent = "AI 보고서 작성용 프롬프트가 생성되었습니다.";
+  showMessage(
+    promptMessage,
+    "AI 보고서 작성용 프롬프트가 생성되었습니다.",
+    "success"
+  );
 });
 
 copyPromptBtn.addEventListener("click", () => {
@@ -240,9 +317,39 @@ copyPromptBtn.addEventListener("click", () => {
   );
 });
 
+openChatGPTBtn.addEventListener("click", async () => {
+  const copied = await copyText(
+    resultPrompt,
+    promptMessage,
+    "프롬프트가 복사되었습니다. ChatGPT를 새 창으로 엽니다.",
+    "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
+  );
+
+  if (copied) {
+    window.open("https://chatgpt.com/", "_blank");
+  }
+});
+
+openGeminiBtn.addEventListener("click", async () => {
+  const copied = await copyText(
+    resultPrompt,
+    promptMessage,
+    "프롬프트가 복사되었습니다. Gemini를 새 창으로 엽니다.",
+    "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
+  );
+
+  if (copied) {
+    window.open("https://gemini.google.com/app", "_blank");
+  }
+});
+
 makeRevisionBtn.addEventListener("click", () => {
   revisionPrompt.value = createRevisionPrompt();
-  revisionMessage.textContent = "보고서 초안 수정용 프롬프트가 생성되었습니다.";
+  showMessage(
+    revisionMessage,
+    "보고서 초안 수정용 프롬프트가 생성되었습니다.",
+    "success"
+  );
 });
 
 copyRevisionBtn.addEventListener("click", () => {
