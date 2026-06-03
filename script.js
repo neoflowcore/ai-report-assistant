@@ -778,11 +778,11 @@ function setTrendSignStyle(signLabel, direction) {
   signLabel.textContent = sign;
 
   if (direction === "상승" || direction === "급등") {
-    signLabel.className = "w-6 text-center font-bold text-red-600";
+    signLabel.className = "trend-sign-inline text-red-600";
   } else if (direction === "하락" || direction === "급락") {
-    signLabel.className = "w-6 text-center font-bold text-blue-600";
+    signLabel.className = "trend-sign-inline text-blue-600";
   } else {
-    signLabel.className = "w-6 text-center font-bold text-slate-700";
+    signLabel.className = "trend-sign-inline text-slate-700";
   }
 }
 
