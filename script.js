@@ -14,14 +14,6 @@ const REPORT_STORE_NAME = "reports";
 const CHATGPT_URL = "https://chatgpt.com/";
 const GEMINI_URL = "https://gemini.google.com/app";
 
-const LAYOUT_MODE_STORAGE_KEY = "rebReportAssistantLayoutMode";
-const LAYOUT_MODE_FIXED = "fixed";
-const LAYOUT_MODE_RESPONSIVE = "responsive";
-
-const layoutFixedBtn = document.getElementById("layoutFixedBtn");
-const layoutResponsiveBtn = document.getElementById("layoutResponsiveBtn");
-const mainContentGrid = document.getElementById("mainContentGrid");
-
 const sourceLinksContainer = document.getElementById("sourceLinksContainer");
 const sampleReportsContainer = document.getElementById("sampleReportsContainer");
 
@@ -84,56 +76,6 @@ let activeStorageSampleIndex = 0;
 let activeStorageMode = "load";
 let reportStorageSearchKeyword = "";
 let reportStoragePositionFrame = null;
-
-function getSavedLayoutMode() {
-  try {
-    const savedMode = window.localStorage.getItem(LAYOUT_MODE_STORAGE_KEY);
-    return savedMode === LAYOUT_MODE_RESPONSIVE
-      ? LAYOUT_MODE_RESPONSIVE
-      : LAYOUT_MODE_FIXED;
-  } catch (error) {
-    return LAYOUT_MODE_FIXED;
-  }
-}
-
-function saveLayoutMode(mode) {
-  try {
-    window.localStorage.setItem(LAYOUT_MODE_STORAGE_KEY, mode);
-  } catch (error) {
-    // 저장이 막힌 브라우저에서도 화면 전환 자체는 계속 동작합니다.
-  }
-}
-
-function applyLayoutMode(mode, shouldSave = true) {
-  const nextMode = mode === LAYOUT_MODE_RESPONSIVE
-    ? LAYOUT_MODE_RESPONSIVE
-    : LAYOUT_MODE_FIXED;
-
-  document.body.classList.toggle("layout-responsive", nextMode === LAYOUT_MODE_RESPONSIVE);
-  document.body.classList.toggle("layout-fixed", nextMode === LAYOUT_MODE_FIXED);
-
-  if (layoutFixedBtn) {
-    layoutFixedBtn.classList.toggle("layout-active", nextMode === LAYOUT_MODE_FIXED);
-    layoutFixedBtn.setAttribute("aria-pressed", String(nextMode === LAYOUT_MODE_FIXED));
-  }
-
-  if (layoutResponsiveBtn) {
-    layoutResponsiveBtn.classList.toggle("layout-active", nextMode === LAYOUT_MODE_RESPONSIVE);
-    layoutResponsiveBtn.setAttribute("aria-pressed", String(nextMode === LAYOUT_MODE_RESPONSIVE));
-  }
-
-  if (shouldSave) {
-    saveLayoutMode(nextMode);
-  }
-
-  if (typeof applyReportStoragePanelPosition === "function") {
-    applyReportStoragePanelPosition();
-  }
-}
-
-function initializeLayoutModeToggle() {
-  applyLayoutMode(getSavedLayoutMode(), false);
-}
 
 function createSourceLinkInput(index) {
   const wrapper = document.createElement("div");
@@ -2680,20 +2622,6 @@ finalReportInput.addEventListener("input", updateDraftCharacterCount);
 finalReportBox.addEventListener("input", updateFinalReportCharacterCount);
 
 copyFinalReportBtn.addEventListener("click", copyFinalReport);
-
-if (layoutFixedBtn) {
-  layoutFixedBtn.addEventListener("click", function () {
-    applyLayoutMode(LAYOUT_MODE_FIXED);
-  });
-}
-
-if (layoutResponsiveBtn) {
-  layoutResponsiveBtn.addEventListener("click", function () {
-    applyLayoutMode(LAYOUT_MODE_RESPONSIVE);
-  });
-}
-
-initializeLayoutModeToggle();
 
 if (sourceLinksContainer.querySelectorAll(".source-link-row").length === 0) {
   addSourceLinkInput();
