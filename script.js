@@ -1,5 +1,11 @@
 const MAX_SOURCE_LINKS = 5;
 const MAX_SAMPLE_REPORTS = 3;
+const MAX_REPORTS_PER_FOLDER = 10;
+
+const REPORT_DB_NAME = "rebPastReportStorage";
+const REPORT_DB_VERSION = 1;
+const FOLDER_STORE_NAME = "folders";
+const REPORT_STORE_NAME = "reports";
 
 const CHATGPT_URL = "https://chatgpt.com/";
 const GEMINI_URL = "https://gemini.google.com/app";
@@ -9,6 +15,17 @@ const sampleReportsContainer = document.getElementById("sampleReportsContainer")
 
 const addSourceLinkBtn = document.getElementById("addSourceLinkBtn");
 const addSampleReportBtn = document.getElementById("addSampleReportBtn");
+const saveReportToStorageBtn = document.getElementById("saveReportToStorageBtn");
+const openReportStorageBtn = document.getElementById("openReportStorageBtn");
+const reportStoragePanel = document.getElementById("reportStoragePanel");
+const closeReportStorageBtn = document.getElementById("closeReportStorageBtn");
+const newFolderNameInput = document.getElementById("newFolderNameInput");
+const createFolderBtn = document.getElementById("createFolderBtn");
+const reportStorageStatusMessage = document.getElementById("reportStorageStatusMessage");
+const folderSelectForSave = document.getElementById("folderSelectForSave");
+const reportTitleForSaveInput = document.getElementById("reportTitleForSaveInput");
+const confirmSaveReportBtn = document.getElementById("confirmSaveReportBtn");
+const reportStorageList = document.getElementById("reportStorageList");
 
 const copyPromptOnlyBtn = document.getElementById("copyPromptOnlyBtn");
 const openChatGptBtn = document.getElementById("openChatGptBtn");
@@ -257,12 +274,9 @@ function getPreviousTrendExpression(sign, rate) {
   }
 
   const formattedRate = formatTrendRate(rate);
+  const normalizedSign = sign === "-" ? "-" : "+";
 
-  if (sign === "-") {
-    return `전기 하락(-${formattedRate}%)`;
-  }
-
-  return `전기 상승(+${formattedRate}%)`;
+  return `전기 변동률 ${normalizedSign}${formattedRate}%`;
 }
 
 function getSignedTrendValue(direction, rate) {
@@ -453,7 +467,7 @@ ${data.issue || "입력 없음"}
 [수치 자료 / 변동 지표]
 ${data.indicator || "입력 없음"}
 
-[전기 시장 방향성 / 변동률]
+[전기 변동률]
 ${data.previousTrendExpression || "입력 없음"}
 
 [현재 시장 방향성 / 변동률]
@@ -530,7 +544,8 @@ ${sampleReportBlock}
    - 변동률, 거래량, 매물량, 임대료, 공실률, 가격 변화 등 수치가 필요한 문단에 배치합니다.
    - 변화 전후가 있는 경우 화살표 또는 비교 문장으로 표현합니다.
    - 대괄호 형식인 “[상승] [+0.23]%”처럼 쓰지 말고, 반드시 “상승(+0.23%)”, “하락(-0.23%)”, “보합(0.00%)”처럼 자연스러운 문장 안에 반영합니다.
-   - 전기 변동률이 입력된 경우 현재 변동률과 비교해 전기 대비 흐름을 반드시 해석합니다.
+   - 전기 변동률은 별도 방향성 선택값 없이 부호(+/-)와 소수점 두 자리 수치만으로 해석합니다.
+   - 전기 변동률의 +는 전기 상승률, -는 전기 하락률로만 간주하고, 현재 변동률과 비교해 전기 대비 흐름을 반드시 해석합니다.
    - 최종 보고서에서는 “급등”, “급락”이라는 단어를 직접 쓰기보다 한국부동산원 보고서에 어울리는 중립적·객관적 표현으로 바꿔 씁니다.
 
    [상승세 기술 표현]
@@ -1141,8 +1156,493 @@ async function copyFinalReport() {
   }
 }
 
+function openReportDatabase() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) {
+      reject(new Error("이 브라우저는 IndexedDB를 지원하지 않습니다."));
+      return;
+    }
+
+    const request = indexedDB.open(REPORT_DB_NAME, REPORT_DB_VERSION);
+
+    request.onupgradeneeded = function (event) {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains(FOLDER_STORE_NAME)) {
+        const folderStore = db.createObjectStore(FOLDER_STORE_NAME, { keyPath: "id" });
+        folderStore.createIndex("createdAt", "createdAt", { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains(REPORT_STORE_NAME)) {
+        const reportStore = db.createObjectStore(REPORT_STORE_NAME, { keyPath: "id" });
+        reportStore.createIndex("folderId", "folderId", { unique: false });
+        reportStore.createIndex("createdAt", "createdAt", { unique: false });
+      }
+    };
+
+    request.onsuccess = function (event) {
+      resolve(event.target.result);
+    };
+
+    request.onerror = function () {
+      reject(request.error || new Error("보고서 저장소를 열 수 없습니다."));
+    };
+  });
+}
+
+function createStorageId(prefix) {
+  if (window.crypto && crypto.randomUUID) {
+    return `${prefix}_${crypto.randomUUID()}`;
+  }
+
+  return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
+function runReportStore(storeName, mode, callback) {
+  return openReportDatabase().then((db) => {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(storeName, mode);
+      const store = transaction.objectStore(storeName);
+      const request = callback(store);
+
+      request.onsuccess = function () {
+        resolve(request.result);
+      };
+
+      request.onerror = function () {
+        reject(request.error || new Error("저장소 작업 중 오류가 발생했습니다."));
+      };
+
+      transaction.oncomplete = function () {
+        db.close();
+      };
+
+      transaction.onerror = function () {
+        db.close();
+        reject(transaction.error || new Error("저장소 작업 중 오류가 발생했습니다."));
+      };
+    });
+  });
+}
+
+function getAllFromStore(storeName) {
+  return runReportStore(storeName, "readonly", (store) => store.getAll());
+}
+
+function addToStore(storeName, value) {
+  return runReportStore(storeName, "readwrite", (store) => store.add(value));
+}
+
+function deleteFromStore(storeName, id) {
+  return runReportStore(storeName, "readwrite", (store) => store.delete(id));
+}
+
+async function getReportFolders() {
+  const folders = await getAllFromStore(FOLDER_STORE_NAME);
+
+  return folders.sort((a, b) => {
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+}
+
+async function getStoredReports() {
+  const reports = await getAllFromStore(REPORT_STORE_NAME);
+
+  return reports.sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+}
+
+async function ensureDefaultReportFolder() {
+  const folders = await getReportFolders();
+
+  if (folders.length > 0) {
+    return folders[0];
+  }
+
+  const now = new Date().toISOString();
+  const defaultFolder = {
+    id: createStorageId("folder"),
+    name: "기본 폴더",
+    createdAt: now,
+    updatedAt: now
+  };
+
+  await addToStore(FOLDER_STORE_NAME, defaultFolder);
+  return defaultFolder;
+}
+
+function setReportStorageStatus(message, type = "normal") {
+  if (!reportStorageStatusMessage) {
+    return;
+  }
+
+  reportStorageStatusMessage.textContent = message;
+
+  if (type === "success") {
+    reportStorageStatusMessage.className = "text-xs text-green-700 leading-relaxed md:pt-3";
+  } else if (type === "error") {
+    reportStorageStatusMessage.className = "text-xs text-red-700 leading-relaxed md:pt-3";
+  } else {
+    reportStorageStatusMessage.className = "text-xs text-slate-500 leading-relaxed md:pt-3";
+  }
+}
+
+function getReportPreviewText(text) {
+  const normalized = String(text || "").replace(/\s+/g, " ").trim();
+
+  if (normalized.length <= 60) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, 60)}...`;
+}
+
+function formatStoredDate(value) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hour = String(date.getHours()).padStart(2, "0");
+  const minute = String(date.getMinutes()).padStart(2, "0");
+
+  return `${year}-${month}-${day} ${hour}:${minute}`;
+}
+
+function getActiveSampleReportInput() {
+  if (document.activeElement && document.activeElement.classList.contains("sample-report-input")) {
+    return document.activeElement;
+  }
+
+  return sampleReportsContainer.querySelector(".sample-report-input");
+}
+
+function getTextForStorage() {
+  const activeInput = getActiveSampleReportInput();
+
+  if (activeInput && activeInput.value.trim()) {
+    return activeInput.value.trim();
+  }
+
+  const firstFilledInput = Array.from(document.querySelectorAll(".sample-report-input"))
+    .find((input) => input.value.trim().length > 0);
+
+  return firstFilledInput ? firstFilledInput.value.trim() : "";
+}
+
+function getDefaultReportTitle(text) {
+  const firstLine = String(text || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+
+  if (firstLine) {
+    return firstLine.length > 30 ? firstLine.slice(0, 30) : firstLine;
+  }
+
+  return `과거 보고서 ${formatStoredDate(new Date().toISOString())}`;
+}
+
+function insertReportIntoSampleInput(text) {
+  const sampleInputs = Array.from(document.querySelectorAll(".sample-report-input"));
+  let targetInput = sampleInputs.find((input) => !input.value.trim());
+
+  if (!targetInput && sampleInputs.length < MAX_SAMPLE_REPORTS) {
+    addSampleReportInput();
+    const updatedInputs = Array.from(document.querySelectorAll(".sample-report-input"));
+    targetInput = updatedInputs[updatedInputs.length - 1];
+  }
+
+  if (!targetInput) {
+    const shouldReplace = confirm("비어 있는 참고 보고서 칸이 없습니다. 참고 보고서 1의 내용을 불러온 보고서로 교체할까요?");
+
+    if (!shouldReplace) {
+      return false;
+    }
+
+    targetInput = sampleInputs[0];
+  }
+
+  targetInput.value = text;
+  targetInput.focus();
+  refreshDynamicInputs();
+  return true;
+}
+
+async function renderReportStorage() {
+  if (!reportStoragePanel || !folderSelectForSave || !reportStorageList) {
+    return;
+  }
+
+  try {
+    await ensureDefaultReportFolder();
+    const folders = await getReportFolders();
+    const reports = await getStoredReports();
+    const selectedFolderId = folderSelectForSave.value;
+
+    folderSelectForSave.innerHTML = folders
+      .map((folder) => `<option value="${folder.id}">${escapeHtml(folder.name)}</option>`)
+      .join("");
+
+    if (selectedFolderId && folders.some((folder) => folder.id === selectedFolderId)) {
+      folderSelectForSave.value = selectedFolderId;
+    }
+
+    reportStorageList.innerHTML = folders.map((folder) => {
+      const folderReports = reports.filter((report) => report.folderId === folder.id);
+      const reportItems = folderReports.length
+        ? folderReports.map((report) => `
+          <div class="border border-indigo-100 rounded-xl p-3 bg-indigo-50/40 space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-indigo-700 break-words">${escapeHtml(report.title)}</p>
+                <p class="text-xs text-slate-500 mt-1">${formatStoredDate(report.createdAt)}</p>
+              </div>
+
+              <div class="flex shrink-0 items-center gap-2">
+                <button
+                  type="button"
+                  class="load-stored-report-btn px-3 py-1 rounded-lg border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+                  data-report-id="${report.id}"
+                >
+                  불러오기
+                </button>
+
+                <button
+                  type="button"
+                  class="delete-stored-report-btn px-3 py-1 rounded-lg border border-red-200 text-sm font-semibold text-red-600 hover:bg-red-50"
+                  data-report-id="${report.id}"
+                >
+                  삭제
+                </button>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed break-words">${escapeHtml(getReportPreviewText(report.content))}</p>
+          </div>
+        `).join("")
+        : `<p class="text-xs text-slate-500 leading-relaxed">아직 저장된 보고서가 없습니다.</p>`;
+
+      return `
+        <div class="sample-report-row bg-white border border-indigo-200 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-bold text-indigo-700">📁 ${escapeHtml(folder.name)}</p>
+            <span class="text-xs text-indigo-500">${folderReports.length}/${MAX_REPORTS_PER_FOLDER}</span>
+          </div>
+          <div class="space-y-2">
+            ${reportItems}
+          </div>
+        </div>
+      `;
+    }).join("");
+  } catch (error) {
+    setReportStorageStatus(error.message || "보고서 저장소를 불러오지 못했습니다.", "error");
+  }
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function openReportStoragePanel(mode = "load") {
+  if (!reportStoragePanel) {
+    return;
+  }
+
+  reportStoragePanel.classList.remove("hidden");
+  await renderReportStorage();
+
+  if (mode === "save") {
+    const textForStorage = getTextForStorage();
+
+    if (reportTitleForSaveInput && textForStorage && !reportTitleForSaveInput.value.trim()) {
+      reportTitleForSaveInput.value = getDefaultReportTitle(textForStorage);
+    }
+
+    setReportStorageStatus("저장할 폴더를 선택한 뒤 현재 참고 보고서를 저장하세요.");
+  } else {
+    setReportStorageStatus("폴더 안의 보고서를 선택해 참고 보고서 칸으로 불러오세요.");
+  }
+}
+
+function closeReportStoragePanel() {
+  if (!reportStoragePanel) {
+    return;
+  }
+
+  reportStoragePanel.classList.add("hidden");
+}
+
+async function createReportFolder() {
+  const folderName = newFolderNameInput.value.trim();
+
+  if (!folderName) {
+    alert("새 주제 폴더명을 입력해 주세요.");
+    return;
+  }
+
+  try {
+    const folders = await getReportFolders();
+
+    if (folders.some((folder) => folder.name === folderName)) {
+      alert("이미 같은 이름의 주제 폴더가 있습니다.");
+      return;
+    }
+
+    const now = new Date().toISOString();
+
+    await addToStore(FOLDER_STORE_NAME, {
+      id: createStorageId("folder"),
+      name: folderName,
+      createdAt: now,
+      updatedAt: now
+    });
+
+    newFolderNameInput.value = "";
+    setReportStorageStatus("새 주제 폴더가 생성되었습니다.", "success");
+    await renderReportStorage();
+  } catch (error) {
+    setReportStorageStatus(error.message || "주제 폴더를 만들지 못했습니다.", "error");
+  }
+}
+
+async function saveCurrentSampleReportToStorage() {
+  const content = getTextForStorage();
+
+  if (!content) {
+    alert("저장할 참고 보고서 내용을 먼저 입력해 주세요.");
+    return;
+  }
+
+  try {
+    await ensureDefaultReportFolder();
+    const folders = await getReportFolders();
+    const folderId = folderSelectForSave.value || (folders[0] && folders[0].id);
+
+    if (!folderId) {
+      alert("저장할 주제 폴더를 먼저 만들어 주세요.");
+      return;
+    }
+
+    const reports = await getStoredReports();
+    const reportsInFolder = reports.filter((report) => report.folderId === folderId);
+
+    if (reportsInFolder.length >= MAX_REPORTS_PER_FOLDER) {
+      alert("이 폴더에는 보고서를 최대 10개까지 저장할 수 있습니다.");
+      return;
+    }
+
+    const title = reportTitleForSaveInput.value.trim() || getDefaultReportTitle(content);
+    const now = new Date().toISOString();
+
+    await addToStore(REPORT_STORE_NAME, {
+      id: createStorageId("report"),
+      folderId,
+      title,
+      content,
+      createdAt: now,
+      updatedAt: now
+    });
+
+    reportTitleForSaveInput.value = "";
+    setReportStorageStatus("현재 참고 보고서가 저장되었습니다.", "success");
+    await renderReportStorage();
+  } catch (error) {
+    setReportStorageStatus(error.message || "보고서를 저장하지 못했습니다.", "error");
+  }
+}
+
+async function loadStoredReport(reportId) {
+  try {
+    const reports = await getStoredReports();
+    const report = reports.find((item) => item.id === reportId);
+
+    if (!report) {
+      alert("불러올 보고서를 찾지 못했습니다.");
+      return;
+    }
+
+    const inserted = insertReportIntoSampleInput(report.content);
+
+    if (inserted) {
+      setReportStorageStatus("저장된 보고서를 참고 보고서 칸에 불러왔습니다.", "success");
+    }
+  } catch (error) {
+    setReportStorageStatus(error.message || "보고서를 불러오지 못했습니다.", "error");
+  }
+}
+
+async function deleteStoredReport(reportId) {
+  const shouldDelete = confirm("이 보고서를 저장소에서 삭제할까요?");
+
+  if (!shouldDelete) {
+    return;
+  }
+
+  try {
+    await deleteFromStore(REPORT_STORE_NAME, reportId);
+    setReportStorageStatus("저장된 보고서를 삭제했습니다.", "success");
+    await renderReportStorage();
+  } catch (error) {
+    setReportStorageStatus(error.message || "보고서를 삭제하지 못했습니다.", "error");
+  }
+}
+
 addSourceLinkBtn.addEventListener("click", addSourceLinkInput);
 addSampleReportBtn.addEventListener("click", addSampleReportInput);
+
+if (saveReportToStorageBtn) {
+  saveReportToStorageBtn.addEventListener("click", function () {
+    openReportStoragePanel("save");
+  });
+}
+
+if (openReportStorageBtn) {
+  openReportStorageBtn.addEventListener("click", function () {
+    openReportStoragePanel("load");
+  });
+}
+
+if (closeReportStorageBtn) {
+  closeReportStorageBtn.addEventListener("click", closeReportStoragePanel);
+}
+
+if (createFolderBtn) {
+  createFolderBtn.addEventListener("click", createReportFolder);
+}
+
+if (confirmSaveReportBtn) {
+  confirmSaveReportBtn.addEventListener("click", saveCurrentSampleReportToStorage);
+}
+
+if (reportStorageList) {
+  reportStorageList.addEventListener("click", function (event) {
+    const loadButton = event.target.closest(".load-stored-report-btn");
+    const deleteButton = event.target.closest(".delete-stored-report-btn");
+
+    if (loadButton) {
+      loadStoredReport(loadButton.dataset.reportId);
+    }
+
+    if (deleteButton) {
+      deleteStoredReport(deleteButton.dataset.reportId);
+    }
+  });
+}
 
 sourceLinksContainer.addEventListener("click", function (event) {
   if (event.target.classList.contains("remove-source-link-btn")) {
@@ -1205,3 +1705,6 @@ updateDraftCharacterCount();
 updateFinalReportCharacterCount();
 updateVolumeModeGuide();
 updateTrendPreview();
+ensureDefaultReportFolder().catch(function () {
+  setReportStorageStatus("보고서 저장소 초기화가 필요합니다.", "error");
+});
