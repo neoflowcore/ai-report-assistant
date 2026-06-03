@@ -628,33 +628,39 @@
 
             <div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 mt-4 space-y-4">
               <div>
-                <p class="font-bold text-amber-800">글자수 조정 AI 최종 조정</p>
+                <p class="font-bold text-amber-800">분량 비율 조정 AI 최종 조정</p>
 
                 <p class="text-sm text-amber-900 leading-relaxed mt-1">
-                  보고서 초안을 기준으로 원문 대비 목표 분량 비율에 맞춰 줄이거나 늘리는 편집 프롬프트를 생성합니다.
-                  글자수는 참고용이며, 실제 목표는 원문 대비 분량 비율을 맞추는 것입니다.
+                  보고서 초안을 기준으로 원문 대비 목표 비율에 맞춰 줄이거나 늘리는 편집 프롬프트를 생성합니다.
+                  글자 수 기준 선택은 제거하고, 퍼센트·배수·분수·범위 중 하나로 목표 분량을 지정합니다.
                 </p>
               </div>
 
               <div class="grid md:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-sm font-semibold mb-2">목표 분량</label>
+                  <label class="block text-sm font-semibold mb-2">조정 방식</label>
+                  <select id="volumeModeSelect" class="w-full border rounded-xl p-3 bg-white">
+                    <option value="percent">퍼센트(%)</option>
+                    <option value="range">퍼센트 범위(%)</option>
+                    <option value="multiple">배수(몇 배)</option>
+                    <option value="fraction">분수/비율</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold mb-2">목표 값</label>
                   <input
                     id="targetLengthInput"
                     type="text"
                     class="w-full border rounded-xl p-3"
-                    placeholder="예: 50% / 45~55% / 1/3 / 0.5배 / 1170자"
+                    placeholder="예: 50"
                   />
                 </div>
-
-                <div>
-                  <label class="block text-sm font-semibold mb-2">글자 수 기준</label>
-                  <select id="lengthBasisSelect" class="w-full border rounded-xl p-3 bg-white">
-                    <option value="공백 포함">공백 포함</option>
-                    <option value="공백 제외">공백 제외</option>
-                  </select>
-                </div>
               </div>
+
+              <p id="volumeModeHelpText" class="text-xs text-amber-900 leading-relaxed">
+                퍼센트 모드: 50 또는 150처럼 입력하면 원문 대비 50% 또는 150%로 조정합니다.
+              </p>
 
               <div class="grid md:grid-cols-3 gap-3">
                 <button
