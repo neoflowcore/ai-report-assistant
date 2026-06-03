@@ -17,16 +17,16 @@ const addSourceLinkBtn = document.getElementById("addSourceLinkBtn");
 const addSampleReportBtn = document.getElementById("addSampleReportBtn");
 const saveReportToStorageBtn = document.getElementById("saveReportToStorageBtn");
 const openReportStorageBtn = document.getElementById("openReportStorageBtn");
-const reportStoragePanel = document.getElementById("reportStoragePanel");
-const reportStorageModeText = document.getElementById("reportStorageModeText");
-const closeReportStorageBtn = document.getElementById("closeReportStorageBtn");
-const newFolderNameInput = document.getElementById("newFolderNameInput");
-const createFolderBtn = document.getElementById("createFolderBtn");
-const reportStorageStatusMessage = document.getElementById("reportStorageStatusMessage");
-const folderSelectForSave = document.getElementById("folderSelectForSave");
-const reportTitleForSaveInput = document.getElementById("reportTitleForSaveInput");
-const confirmSaveReportBtn = document.getElementById("confirmSaveReportBtn");
-const reportStorageList = document.getElementById("reportStorageList");
+let reportStoragePanel = document.getElementById("reportStoragePanel");
+let reportStorageModeText = document.getElementById("reportStorageModeText");
+let closeReportStorageBtn = document.getElementById("closeReportStorageBtn");
+let newFolderNameInput = document.getElementById("newFolderNameInput");
+let createFolderBtn = document.getElementById("createFolderBtn");
+let reportStorageStatusMessage = document.getElementById("reportStorageStatusMessage");
+let folderSelectForSave = document.getElementById("folderSelectForSave");
+let reportTitleForSaveInput = document.getElementById("reportTitleForSaveInput");
+let confirmSaveReportBtn = document.getElementById("confirmSaveReportBtn");
+let reportStorageList = document.getElementById("reportStorageList");
 
 const copyPromptOnlyBtn = document.getElementById("copyPromptOnlyBtn");
 const openChatGptBtn = document.getElementById("openChatGptBtn");
@@ -65,6 +65,7 @@ const trendPreviewText = document.getElementById("trendPreviewText");
 let latestPrompt = "";
 let activeStorageSampleIndex = 0;
 let activeStorageMode = "load";
+let reportStoragePositionFrame = null;
 
 function createSourceLinkInput(index) {
   const wrapper = document.createElement("div");
@@ -129,6 +130,277 @@ function createSampleReportInput(index) {
   `;
 
   return wrapper;
+}
+
+function ensureSampleReportActionButtons(row, index) {
+  if (!row) {
+    return;
+  }
+
+  let header = row.querySelector(".flex.items-center.justify-between");
+
+  if (!header) {
+    const title = row.querySelector(".sample-report-title");
+    header = document.createElement("div");
+    header.className = "flex items-center justify-between gap-2";
+
+    if (title) {
+      title.parentNode.insertBefore(header, title);
+      header.appendChild(title);
+    } else {
+      row.insertBefore(header, row.firstChild);
+      const newTitle = document.createElement("p");
+      newTitle.className = "sample-report-title text-sm font-bold text-indigo-700";
+      header.appendChild(newTitle);
+    }
+  }
+
+  let actionWrap = header.querySelector(".sample-report-actions");
+
+  if (!actionWrap) {
+    const existingButtonWrap = Array.from(header.children).find((child) => {
+      return child !== row.querySelector(".sample-report-title") && child.querySelector && child.querySelector("button");
+    });
+
+    if (existingButtonWrap) {
+      actionWrap = existingButtonWrap;
+      actionWrap.classList.add("sample-report-actions");
+    } else {
+      actionWrap = document.createElement("div");
+      actionWrap.className = "sample-report-actions flex items-center gap-2 flex-wrap justify-end";
+      header.appendChild(actionWrap);
+    }
+  }
+
+  let removeBtn = actionWrap.querySelector(".remove-sample-report-btn") || row.querySelector(".remove-sample-report-btn");
+
+  let saveBtn = actionWrap.querySelector(".save-sample-report-btn");
+  if (!saveBtn) {
+    saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "save-sample-report-btn px-3 py-1 rounded-lg border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50";
+    saveBtn.textContent = "보고서 저장";
+    if (removeBtn && removeBtn.parentNode === actionWrap) {
+      actionWrap.insertBefore(saveBtn, removeBtn);
+    } else {
+      actionWrap.appendChild(saveBtn);
+    }
+  }
+
+  let loadBtn = actionWrap.querySelector(".load-sample-report-btn");
+  if (!loadBtn) {
+    loadBtn = document.createElement("button");
+    loadBtn.type = "button";
+    loadBtn.className = "load-sample-report-btn px-3 py-1 rounded-lg border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50";
+    loadBtn.textContent = "보고서 불러오기";
+    if (removeBtn && removeBtn.parentNode === actionWrap) {
+      actionWrap.insertBefore(loadBtn, removeBtn);
+    } else {
+      actionWrap.appendChild(loadBtn);
+    }
+  }
+
+  if (removeBtn && removeBtn.parentNode !== actionWrap) {
+    actionWrap.appendChild(removeBtn);
+  }
+
+  saveBtn.dataset.sampleIndex = String(index);
+  loadBtn.dataset.sampleIndex = String(index);
+}
+
+function ensureReportStorageElements() {
+  if (!reportStoragePanel) {
+    const panel = document.createElement("div");
+    panel.id = "reportStoragePanel";
+    panel.className = "fixed right-0 z-50 w-full max-w-[480px] bg-white border border-indigo-200 rounded-l-2xl p-5 space-y-3 shadow-xl overflow-y-auto transition-all duration-300 ease-out translate-x-full opacity-0 pointer-events-none";
+    panel.innerHTML = `
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-bold text-indigo-700">과거 보고서 저장소</p>
+          <p id="reportStorageModeText" class="text-xs text-indigo-600 mt-1">
+            저장된 보고서는 현재 브라우저에만 보관됩니다. 브라우저 데이터 삭제 시 함께 삭제될 수 있습니다.
+          </p>
+        </div>
+
+        <button
+          id="closeReportStorageBtn"
+          type="button"
+          class="px-3 py-1 rounded-lg border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+        >
+          닫기
+        </button>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-2">
+        <input
+          id="newFolderNameInput"
+          type="text"
+          class="border rounded-xl p-3 text-sm"
+          placeholder="새 주제 폴더명"
+        />
+
+        <button
+          id="createFolderBtn"
+          type="button"
+          class="px-3 py-3 rounded-xl border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+        >
+          + 주제 폴더 만들기
+        </button>
+
+        <p id="reportStorageStatusMessage" class="text-xs text-slate-500 leading-relaxed md:pt-3">
+          폴더별 최대 10개까지 저장할 수 있습니다.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-2">
+        <select
+          id="folderSelectForSave"
+          class="border rounded-xl p-3 text-sm bg-white"
+        ></select>
+
+        <input
+          id="reportTitleForSaveInput"
+          type="text"
+          class="border rounded-xl p-3 text-sm"
+          placeholder="저장할 보고서 제목"
+        />
+      </div>
+
+      <button
+        id="confirmSaveReportBtn"
+        type="button"
+        class="w-full px-3 py-3 rounded-xl border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+      >
+        현재 참고 보고서 저장
+      </button>
+
+      <div id="reportStorageList" class="space-y-3"></div>
+    `;
+    document.body.appendChild(panel);
+  }
+
+  reportStoragePanel = document.getElementById("reportStoragePanel");
+  reportStorageModeText = document.getElementById("reportStorageModeText");
+  closeReportStorageBtn = document.getElementById("closeReportStorageBtn");
+  newFolderNameInput = document.getElementById("newFolderNameInput");
+  createFolderBtn = document.getElementById("createFolderBtn");
+  reportStorageStatusMessage = document.getElementById("reportStorageStatusMessage");
+  folderSelectForSave = document.getElementById("folderSelectForSave");
+  reportTitleForSaveInput = document.getElementById("reportTitleForSaveInput");
+  confirmSaveReportBtn = document.getElementById("confirmSaveReportBtn");
+  reportStorageList = document.getElementById("reportStorageList");
+
+  if (reportStoragePanel) {
+    reportStoragePanel.classList.remove("top-0", "h-screen");
+    reportStoragePanel.classList.add("overflow-y-auto");
+  }
+}
+
+function getReportStorageAnchorBox() {
+  if (!sampleReportsContainer) {
+    return null;
+  }
+
+  return sampleReportsContainer.closest(".bg-indigo-50");
+}
+
+function isMobileReportStorageView() {
+  if (window.matchMedia) {
+    return window.matchMedia("(max-width: 768px)").matches;
+  }
+
+  return (window.innerWidth || document.documentElement.clientWidth || 0) <= 768;
+}
+
+function applyReportStoragePanelPosition() {
+  if (!reportStoragePanel) {
+    return;
+  }
+
+  reportStoragePanel.classList.remove("top-0", "h-screen");
+
+  const style = reportStoragePanel.style;
+  style.position = "fixed";
+  style.overflowY = "auto";
+
+  if (isMobileReportStorageView()) {
+    style.top = "0";
+    style.left = "0";
+    style.right = "0";
+    style.bottom = "0";
+    style.width = "100%";
+    style.maxWidth = "none";
+    style.height = "100dvh";
+    style.maxHeight = "100dvh";
+    return;
+  }
+
+  const anchorBox = getReportStorageAnchorBox();
+  const margin = 16;
+  const gap = 12;
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1200;
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 800;
+
+  if (!anchorBox) {
+    const fallbackHeight = Math.max(260, viewportHeight - margin * 2);
+    style.top = `${margin}px`;
+    style.left = "auto";
+    style.right = `${margin}px`;
+    style.bottom = "auto";
+    style.width = "480px";
+    style.maxWidth = `calc(100vw - ${margin * 2}px)`;
+    style.height = `${fallbackHeight}px`;
+    style.maxHeight = `${fallbackHeight}px`;
+    return;
+  }
+
+  const rect = anchorBox.getBoundingClientRect();
+  const maxHeight = Math.max(260, viewportHeight - margin * 2);
+  const panelHeight = Math.min(Math.max(rect.height, 260), maxHeight);
+  const panelTop = Math.max(margin, Math.min(rect.top, viewportHeight - panelHeight - margin));
+
+  const availableWidth = viewportWidth - rect.right - gap - margin;
+  let panelWidth = Math.min(480, Math.max(320, availableWidth));
+  let panelLeft = rect.right + gap;
+
+  if (availableWidth < 320) {
+    panelWidth = Math.min(480, viewportWidth - margin * 2);
+    panelLeft = viewportWidth - panelWidth - margin;
+  }
+
+  panelLeft = Math.max(margin, panelLeft);
+
+  style.top = `${Math.round(panelTop)}px`;
+  style.left = `${Math.round(panelLeft)}px`;
+  style.right = "auto";
+  style.bottom = "auto";
+  style.width = `${Math.round(panelWidth)}px`;
+  style.maxWidth = "480px";
+  style.height = `${Math.round(panelHeight)}px`;
+  style.maxHeight = `${Math.round(panelHeight)}px`;
+}
+
+function isReportStoragePanelOpen() {
+  return Boolean(
+    reportStoragePanel &&
+    !reportStoragePanel.classList.contains("pointer-events-none") &&
+    !reportStoragePanel.classList.contains("opacity-0")
+  );
+}
+
+function requestReportStoragePanelPositionUpdate() {
+  if (!isReportStoragePanelOpen()) {
+    return;
+  }
+
+  if (reportStoragePositionFrame) {
+    window.cancelAnimationFrame(reportStoragePositionFrame);
+  }
+
+  reportStoragePositionFrame = window.requestAnimationFrame(function () {
+    reportStoragePositionFrame = null;
+    applyReportStoragePanelPosition();
+  });
 }
 
 function addSourceLinkInput() {
@@ -197,6 +469,8 @@ function refreshDynamicInputs() {
   });
 
   sampleRows.forEach((row, index) => {
+    ensureSampleReportActionButtons(row, index);
+
     const title = row.querySelector(".sample-report-title");
     const textarea = row.querySelector(".sample-report-input");
     const removeBtn = row.querySelector(".remove-sample-report-btn");
@@ -213,13 +487,20 @@ function refreshDynamicInputs() {
       loadBtn.dataset.sampleIndex = String(index);
     }
 
-    title.textContent = `참고 보고서 ${index + 1}`;
-    textarea.placeholder = `참고 보고서 ${index + 1} 내용을 입력하세요. 목차, 문체, 문단 흐름, 수치 제시 방식, 사례 정리 방식, 결론 도출 방식이 드러나도록 붙여넣으면 좋습니다.`;
+    if (title) {
+      title.textContent = `참고 보고서 ${index + 1}`;
+    }
 
-    if (sampleRows.length === 1) {
-      removeBtn.classList.add("hidden");
-    } else {
-      removeBtn.classList.remove("hidden");
+    if (textarea) {
+      textarea.placeholder = `참고 보고서 ${index + 1} 내용을 입력하세요. 목차, 문체, 문단 흐름, 수치 제시 방식, 사례 정리 방식, 결론 도출 방식이 드러나도록 붙여넣으면 좋습니다.`;
+    }
+
+    if (removeBtn) {
+      if (sampleRows.length === 1) {
+        removeBtn.classList.add("hidden");
+      } else {
+        removeBtn.classList.remove("hidden");
+      }
     }
   });
 
@@ -1412,6 +1693,8 @@ function insertReportIntoSampleInput(text, index = activeStorageSampleIndex) {
 }
 
 async function renderReportStorage() {
+  ensureReportStorageElements();
+
   if (!reportStoragePanel || !folderSelectForSave || !reportStorageList) {
     return;
   }
@@ -1519,7 +1802,10 @@ function escapeHtml(value) {
 }
 
 async function openReportStoragePanel(mode = "load", sampleIndex = 0) {
+  ensureReportStorageElements();
+
   if (!reportStoragePanel) {
+    alert("보고서 저장소를 열 수 없습니다.");
     return;
   }
 
@@ -1532,10 +1818,12 @@ async function openReportStoragePanel(mode = "load", sampleIndex = 0) {
     reportStorageModeText.textContent = `참고 보고서 ${sampleNumber}에 연결된 저장소입니다. 저장된 보고서는 현재 브라우저에만 보관됩니다.`;
   }
 
+  applyReportStoragePanelPosition();
   reportStoragePanel.classList.remove("hidden", "translate-x-full", "opacity-0", "pointer-events-none");
   reportStoragePanel.classList.add("translate-x-0", "opacity-100");
 
   await renderReportStorage();
+  applyReportStoragePanelPosition();
 
   if (confirmSaveReportBtn) {
     confirmSaveReportBtn.textContent = `참고 보고서 ${sampleNumber} 저장`;
@@ -1555,12 +1843,19 @@ async function openReportStoragePanel(mode = "load", sampleIndex = 0) {
 }
 
 function closeReportStoragePanel() {
+  ensureReportStorageElements();
+
   if (!reportStoragePanel) {
     return;
   }
 
   reportStoragePanel.classList.remove("translate-x-0", "opacity-100");
   reportStoragePanel.classList.add("translate-x-full", "opacity-0", "pointer-events-none");
+
+  if (reportStoragePositionFrame) {
+    window.cancelAnimationFrame(reportStoragePositionFrame);
+    reportStoragePositionFrame = null;
+  }
 }
 
 async function createReportFolder() {
@@ -1799,6 +2094,8 @@ if (saveReportToStorageBtn) {
   });
 }
 
+ensureReportStorageElements();
+
 if (openReportStorageBtn) {
   openReportStorageBtn.addEventListener("click", function () {
     openReportStoragePanel("load");
@@ -1816,6 +2113,9 @@ if (createFolderBtn) {
 if (confirmSaveReportBtn) {
   confirmSaveReportBtn.addEventListener("click", saveCurrentSampleReportToStorage);
 }
+
+window.addEventListener("resize", requestReportStoragePanelPositionUpdate);
+window.addEventListener("scroll", requestReportStoragePanelPositionUpdate, { passive: true });
 
 if (reportStorageList) {
   reportStorageList.addEventListener("click", function (event) {
