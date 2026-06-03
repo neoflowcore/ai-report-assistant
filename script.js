@@ -280,6 +280,11 @@ function ensureReportStorageElements() {
   }
 
   reportStoragePanel = document.getElementById("reportStoragePanel");
+
+  if (reportStoragePanel && reportStoragePanel.parentElement !== document.body) {
+    document.body.appendChild(reportStoragePanel);
+  }
+
   reportStorageModeText = document.getElementById("reportStorageModeText");
   closeReportStorageBtn = document.getElementById("closeReportStorageBtn");
   newFolderNameInput = document.getElementById("newFolderNameInput");
@@ -322,6 +327,7 @@ function applyReportStoragePanelPosition() {
   const style = reportStoragePanel.style;
   style.position = "fixed";
   style.overflowY = "auto";
+  style.zIndex = "80";
 
   if (isMobileReportStorageView()) {
     style.top = "0";
@@ -337,12 +343,12 @@ function applyReportStoragePanelPosition() {
 
   const anchorBox = getReportStorageAnchorBox();
   const margin = 16;
-  const gap = 12;
+  const gap = 10;
   const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1200;
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 800;
 
   if (!anchorBox) {
-    const fallbackHeight = Math.max(260, viewportHeight - margin * 2);
+    const fallbackHeight = Math.max(300, viewportHeight - margin * 2);
     style.top = `${margin}px`;
     style.left = "auto";
     style.right = `${margin}px`;
@@ -355,20 +361,21 @@ function applyReportStoragePanelPosition() {
   }
 
   const rect = anchorBox.getBoundingClientRect();
-  const maxHeight = Math.max(260, viewportHeight - margin * 2);
-  const panelHeight = Math.min(Math.max(rect.height, 260), maxHeight);
-  const panelTop = Math.max(margin, Math.min(rect.top, viewportHeight - panelHeight - margin));
+  const panelWidth = Math.min(480, Math.max(360, viewportWidth - rect.right - gap - margin));
+  const preferredLeft = rect.right + gap;
+  const panelLeft = Math.max(
+    margin,
+    Math.min(preferredLeft, viewportWidth - panelWidth - margin)
+  );
 
-  const availableWidth = viewportWidth - rect.right - gap - margin;
-  let panelWidth = Math.min(480, Math.max(320, availableWidth));
-  let panelLeft = rect.right + gap;
-
-  if (availableWidth < 320) {
-    panelWidth = Math.min(480, viewportWidth - margin * 2);
-    panelLeft = viewportWidth - panelWidth - margin;
-  }
-
-  panelLeft = Math.max(margin, panelLeft);
+  const minHeight = Math.min(360, Math.max(260, viewportHeight - margin * 2));
+  const maxHeight = Math.max(minHeight, viewportHeight - margin * 2);
+  const panelHeight = Math.min(Math.max(rect.height, minHeight), maxHeight);
+  const preferredTop = rect.top;
+  const panelTop = Math.max(
+    margin,
+    Math.min(preferredTop, viewportHeight - panelHeight - margin)
+  );
 
   style.top = `${Math.round(panelTop)}px`;
   style.left = `${Math.round(panelLeft)}px`;
