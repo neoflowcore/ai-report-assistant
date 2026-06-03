@@ -524,6 +524,38 @@
     }
 
     @media (max-width: 768px) {
+      /* 모바일 전용: 기존 박스/버튼 디자인은 유지하고 글자 크기만 약 80%로 축소 */
+      body {
+        font-size: 80%;
+      }
+
+      h1 {
+        font-size: 1.6rem !important;
+      }
+
+      p,
+      label,
+      li,
+      button,
+      input,
+      textarea,
+      select {
+        font-size: 80% !important;
+      }
+
+      .text-xs {
+        font-size: 0.6rem !important;
+      }
+
+      .text-sm {
+        font-size: 0.7rem !important;
+      }
+
+      .text-3xl,
+      .md\:text-4xl {
+        font-size: 1.6rem !important;
+      }
+
       main,
       main > section {
         width: 100%;
@@ -1138,7 +1170,7 @@
             <textarea
               id="finalReportBox"
               class="w-full h-[500px] bg-white border rounded-xl p-5 whitespace-pre-line text-sm leading-relaxed overflow-y-auto"
-              placeholder="글자수 조정을 마친 보고서를 여기에 붙여넣으세요. 붙여넣은 다음 사용자가 최종적으로 내용을 검토·수정하고, 이후 [최종 보고서 복사]를 누르면 이 칸의 전체 내용이 복사됩니다."
+              placeholder="글자수 조정 또는 최종 수정을 마친 보고서를 여기에 붙여넣으세요. 이후 [최종 보고서 복사]를 누르면 이 칸의 전체 내용이 복사됩니다."
             ></textarea>
 
             <div class="mt-4">
