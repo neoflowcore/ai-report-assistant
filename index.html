@@ -499,7 +499,89 @@
       font-weight: 800;
     }
 
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    main,
+    main > section,
+    header,
+    header > div,
+    .grid,
+    .grid > div,
+    .sample-report-row {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    input,
+    textarea,
+    select {
+      max-width: 100%;
+      min-width: 0;
+    }
+
     @media (max-width: 768px) {
+      main,
+      main > section {
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+      }
+
+      header,
+      header > div,
+      .grid,
+      .grid > div {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .source-link-row {
+        flex-wrap: wrap;
+      }
+
+      .source-link-input {
+        flex: 1 1 220px;
+        min-width: 0;
+      }
+
+      #sampleReportsContainer,
+      .sample-report-row,
+      .sample-report-input {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .sample-report-row > div:first-child {
+        flex-wrap: wrap;
+        align-items: flex-start !important;
+      }
+
+      .sample-report-title {
+        flex: 1 1 100%;
+        min-width: 0;
+      }
+
+      .sample-report-actions {
+        width: 100%;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+      }
+
+      .sample-report-actions button {
+        flex: 0 1 auto;
+        white-space: nowrap;
+      }
+
+      textarea,
+      input {
+        width: 100%;
+      }
+
       .trend-header-row {
         align-items: flex-start;
       }
@@ -750,7 +832,7 @@
                     참고 보고서 1
                   </p>
 
-                  <div class="flex items-center gap-2 flex-wrap justify-end">
+                  <div class="sample-report-actions flex items-center gap-2 flex-wrap justify-end">
                     <button
                       type="button"
                       class="save-sample-report-btn px-3 py-1 rounded-lg border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
