@@ -1,6 +1,10 @@
 const MAX_SOURCE_LINKS = 5;
 const MAX_SAMPLE_REPORTS = 3;
-const MAX_REPORTS_PER_FOLDER = 10;
+
+// 과거 보고서 저장소 최종 제한값
+// 브라우저 저장소 안정성, 검색 속도, 백업 파일 용량을 고려해 넉넉한 상한을 둡니다.
+const MAX_REPORTS_PER_FOLDER = 50;
+const MAX_REPORTS_TOTAL = 500;
 
 const REPORT_DB_NAME = "rebPastReportStorage";
 const REPORT_DB_VERSION = 1;
@@ -27,6 +31,11 @@ let folderSelectForSave = document.getElementById("folderSelectForSave");
 let reportTitleForSaveInput = document.getElementById("reportTitleForSaveInput");
 let confirmSaveReportBtn = document.getElementById("confirmSaveReportBtn");
 let reportStorageList = document.getElementById("reportStorageList");
+let reportStorageSearchInput = document.getElementById("reportStorageSearchInput");
+let exportReportStorageBtn = document.getElementById("exportReportStorageBtn");
+let importReportStorageBtn = document.getElementById("importReportStorageBtn");
+let importReportStorageFileInput = document.getElementById("importReportStorageFileInput");
+let resetReportStorageBtn = document.getElementById("resetReportStorageBtn");
 
 const copyPromptOnlyBtn = document.getElementById("copyPromptOnlyBtn");
 const openChatGptBtn = document.getElementById("openChatGptBtn");
@@ -65,6 +74,7 @@ const trendPreviewText = document.getElementById("trendPreviewText");
 let latestPrompt = "";
 let activeStorageSampleIndex = 0;
 let activeStorageMode = "load";
+let reportStorageSearchKeyword = "";
 let reportStoragePositionFrame = null;
 
 function createSourceLinkInput(index) {
@@ -231,6 +241,48 @@ function ensureReportStorageElements() {
         </button>
       </div>
 
+      <div class="grid md:grid-cols-2 gap-2">
+        <input
+          id="reportStorageSearchInput"
+          type="text"
+          class="border rounded-xl p-3 text-sm"
+          placeholder="저장소 검색"
+        />
+
+        <div class="grid grid-cols-3 gap-2">
+          <button
+            id="exportReportStorageBtn"
+            type="button"
+            class="px-3 py-3 rounded-xl border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+          >
+            백업 내보내기
+          </button>
+
+          <button
+            id="importReportStorageBtn"
+            type="button"
+            class="px-3 py-3 rounded-xl border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
+          >
+            백업 가져오기
+          </button>
+
+          <button
+            id="resetReportStorageBtn"
+            type="button"
+            class="px-3 py-3 rounded-xl border border-red-200 text-sm font-semibold text-red-600 hover:bg-red-50"
+          >
+            저장소 초기화
+          </button>
+        </div>
+
+        <input
+          id="importReportStorageFileInput"
+          type="file"
+          accept="application/json,.json"
+          class="hidden"
+        />
+      </div>
+
       <div class="grid md:grid-cols-3 gap-2">
         <input
           id="newFolderNameInput"
@@ -248,7 +300,7 @@ function ensureReportStorageElements() {
         </button>
 
         <p id="reportStorageStatusMessage" class="text-xs text-slate-500 leading-relaxed md:pt-3">
-          폴더별 최대 10개까지 저장할 수 있습니다.
+          폴더별 최대 50개, 전체 최대 500개까지 저장할 수 있습니다.
         </p>
       </div>
 
@@ -294,6 +346,11 @@ function ensureReportStorageElements() {
   reportTitleForSaveInput = document.getElementById("reportTitleForSaveInput");
   confirmSaveReportBtn = document.getElementById("confirmSaveReportBtn");
   reportStorageList = document.getElementById("reportStorageList");
+  reportStorageSearchInput = document.getElementById("reportStorageSearchInput");
+  exportReportStorageBtn = document.getElementById("exportReportStorageBtn");
+  importReportStorageBtn = document.getElementById("importReportStorageBtn");
+  importReportStorageFileInput = document.getElementById("importReportStorageFileInput");
+  resetReportStorageBtn = document.getElementById("resetReportStorageBtn");
 
   if (reportStoragePanel) {
     reportStoragePanel.classList.remove("top-0", "h-screen");
@@ -1560,6 +1617,27 @@ function deleteFromStore(storeName, id) {
   return runReportStore(storeName, "readwrite", (store) => store.delete(id));
 }
 
+function getFromStore(storeName, id) {
+  return runReportStore(storeName, "readonly", (store) => store.get(id));
+}
+
+async function touchReportFolder(folderId) {
+  if (!folderId) {
+    return;
+  }
+
+  const folder = await getFromStore(FOLDER_STORE_NAME, folderId);
+
+  if (!folder) {
+    return;
+  }
+
+  await putToStore(FOLDER_STORE_NAME, {
+    ...folder,
+    updatedAt: new Date().toISOString()
+  });
+}
+
 async function getReportFolders() {
   const folders = await getAllFromStore(FOLDER_STORE_NAME);
 
@@ -1611,6 +1689,14 @@ function setReportStorageStatus(message, type = "normal") {
   }
 }
 
+function getReportStorageLimitText(totalCount = 0) {
+  return `폴더별 최대 ${MAX_REPORTS_PER_FOLDER}개, 전체 최대 ${MAX_REPORTS_TOTAL}개 저장 가능 · 현재 ${totalCount}/${MAX_REPORTS_TOTAL}개`;
+}
+
+function hasReportStorageCapacity(totalCount) {
+  return totalCount < MAX_REPORTS_TOTAL;
+}
+
 function getReportPreviewText(text) {
   const normalized = String(text || "").replace(/\s+/g, " ").trim();
 
@@ -1619,6 +1705,82 @@ function getReportPreviewText(text) {
   }
 
   return `${normalized.slice(0, 60)}...`;
+}
+
+function normalizeReportSearchText(value) {
+  return String(value || "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function reportMatchesSearch(report, keyword) {
+  if (!keyword) {
+    return true;
+  }
+
+  const target = normalizeReportSearchText(`${report.title || ""} ${report.content || ""}`);
+  return target.includes(keyword);
+}
+
+function folderMatchesSearch(folder, keyword) {
+  if (!keyword) {
+    return true;
+  }
+
+  return normalizeReportSearchText(folder.name).includes(keyword);
+}
+
+function getReportStorageBackupFilename() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hour = String(now.getHours()).padStart(2, "0");
+  const minute = String(now.getMinutes()).padStart(2, "0");
+
+  return `report-storage-backup-${year}${month}${day}-${hour}${minute}.json`;
+}
+
+function downloadTextFile(filename, text, mimeType = "application/json") {
+  const blob = new Blob([text], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = function () {
+      resolve(String(reader.result || ""));
+    };
+
+    reader.onerror = function () {
+      reject(reader.error || new Error("파일을 읽지 못했습니다."));
+    };
+
+    reader.readAsText(file, "utf-8");
+  });
+}
+
+function validateReportStorageBackup(payload) {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("백업 파일 형식이 올바르지 않습니다.");
+  }
+
+  if (!Array.isArray(payload.folders) || !Array.isArray(payload.reports)) {
+    throw new Error("백업 파일에 폴더 또는 보고서 데이터가 없습니다.");
+  }
+
+  return {
+    folders: payload.folders.filter((folder) => folder && typeof folder === "object"),
+    reports: payload.reports.filter((report) => report && typeof report === "object")
+  };
 }
 
 function formatStoredDate(value) {
@@ -1710,7 +1872,17 @@ async function renderReportStorage() {
     await ensureDefaultReportFolder();
     const folders = await getReportFolders();
     const reports = await getStoredReports();
+    const totalReportCount = reports.length;
     const selectedFolderId = folderSelectForSave.value;
+    const searchKeyword = normalizeReportSearchText(
+      reportStorageSearchInput ? reportStorageSearchInput.value : reportStorageSearchKeyword
+    );
+
+    reportStorageSearchKeyword = searchKeyword;
+
+    if (reportStorageStatusMessage && !reportStorageStatusMessage.textContent.trim()) {
+      setReportStorageStatus(getReportStorageLimitText(totalReportCount));
+    }
 
     folderSelectForSave.innerHTML = folders
       .map((folder) => `<option value="${folder.id}">${escapeHtml(folder.name)}</option>`)
@@ -1720,10 +1892,19 @@ async function renderReportStorage() {
       folderSelectForSave.value = selectedFolderId;
     }
 
-    reportStorageList.innerHTML = folders.map((folder) => {
+    const renderedFolders = folders.map((folder) => {
       const folderReports = reports.filter((report) => report.folderId === folder.id);
-      const reportItems = folderReports.length
-        ? folderReports.map((report) => `
+      const isFolderMatched = folderMatchesSearch(folder, searchKeyword);
+      const visibleReports = searchKeyword && !isFolderMatched
+        ? folderReports.filter((report) => reportMatchesSearch(report, searchKeyword))
+        : folderReports;
+
+      if (searchKeyword && !isFolderMatched && visibleReports.length === 0) {
+        return "";
+      }
+
+      const reportItems = visibleReports.length
+        ? visibleReports.map((report) => `
           <div class="border border-indigo-100 rounded-xl p-3 bg-indigo-50/40 space-y-2">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
@@ -1761,7 +1942,7 @@ async function renderReportStorage() {
             <p class="text-xs text-slate-600 leading-relaxed break-words">${escapeHtml(getReportPreviewText(report.content))}</p>
           </div>
         `).join("")
-        : `<p class="text-xs text-slate-500 leading-relaxed">아직 저장된 보고서가 없습니다.</p>`;
+        : `<p class="text-xs text-slate-500 leading-relaxed">${searchKeyword ? "검색 조건에 맞는 보고서가 없습니다." : "아직 저장된 보고서가 없습니다."}</p>`;
 
       return `
         <div class="sample-report-row bg-white border border-indigo-200 rounded-xl p-4 space-y-3">
@@ -1793,7 +1974,17 @@ async function renderReportStorage() {
           </div>
         </div>
       `;
-    }).join("");
+    }).filter(Boolean);
+
+    if (renderedFolders.length) {
+      reportStorageList.innerHTML = renderedFolders.join("");
+    } else {
+      reportStorageList.innerHTML = `
+        <div class="sample-report-row bg-white border border-indigo-200 rounded-xl p-4">
+          <p class="text-xs text-slate-500 leading-relaxed">검색 조건에 맞는 폴더 또는 보고서가 없습니다.</p>
+        </div>
+      `;
+    }
   } catch (error) {
     setReportStorageStatus(error.message || "보고서 저장소를 불러오지 못했습니다.", "error");
   }
@@ -1822,7 +2013,7 @@ async function openReportStoragePanel(mode = "load", sampleIndex = 0) {
   const sampleNumber = activeStorageSampleIndex + 1;
 
   if (reportStorageModeText) {
-    reportStorageModeText.textContent = `참고 보고서 ${sampleNumber}에 연결된 저장소입니다. 저장된 보고서는 현재 브라우저에만 보관됩니다.`;
+    reportStorageModeText.textContent = `참고 보고서 ${sampleNumber}에 연결된 저장소입니다. 저장된 보고서는 현재 브라우저에만 보관되며, 폴더별 ${MAX_REPORTS_PER_FOLDER}개·전체 ${MAX_REPORTS_TOTAL}개까지 관리할 수 있습니다.`;
   }
 
   applyReportStoragePanelPosition();
@@ -1843,9 +2034,11 @@ async function openReportStoragePanel(mode = "load", sampleIndex = 0) {
       reportTitleForSaveInput.value = getDefaultReportTitle(textForStorage);
     }
 
-    setReportStorageStatus(`참고 보고서 ${sampleNumber} 내용을 저장할 폴더를 선택하세요.`);
+    const totalReportCount = (await getStoredReports()).length;
+    setReportStorageStatus(`참고 보고서 ${sampleNumber} 내용을 저장할 폴더를 선택하세요. ${getReportStorageLimitText(totalReportCount)}`);
   } else {
-    setReportStorageStatus(`폴더 안의 보고서를 선택하면 참고 보고서 ${sampleNumber} 칸에 불러옵니다.`);
+    const totalReportCount = (await getStoredReports()).length;
+    setReportStorageStatus(`폴더 안의 보고서를 선택하면 참고 보고서 ${sampleNumber} 칸에 불러옵니다. ${getReportStorageLimitText(totalReportCount)}`);
   }
 }
 
@@ -1862,6 +2055,181 @@ function closeReportStoragePanel() {
   if (reportStoragePositionFrame) {
     window.cancelAnimationFrame(reportStoragePositionFrame);
     reportStoragePositionFrame = null;
+  }
+}
+
+async function exportReportStorageBackup() {
+  try {
+    const folders = await getReportFolders();
+    const reports = await getStoredReports();
+    const payload = {
+      schema: "rebPastReportStorage.v1",
+      exportedAt: new Date().toISOString(),
+      folders,
+      reports
+    };
+
+    downloadTextFile(
+      getReportStorageBackupFilename(),
+      JSON.stringify(payload, null, 2),
+      "application/json"
+    );
+
+    setReportStorageStatus("저장소 백업 파일을 내보냈습니다.", "success");
+  } catch (error) {
+    setReportStorageStatus(error.message || "저장소 백업 파일을 만들지 못했습니다.", "error");
+  }
+}
+
+function openReportStorageImportPicker() {
+  if (!importReportStorageFileInput) {
+    return;
+  }
+
+  importReportStorageFileInput.value = "";
+  importReportStorageFileInput.click();
+}
+
+async function importReportStorageBackup(file) {
+  if (!file) {
+    return;
+  }
+
+  try {
+    const rawText = await readFileAsText(file);
+    const parsed = JSON.parse(rawText);
+    const backup = validateReportStorageBackup(parsed);
+
+    const shouldImport = confirm("백업 파일의 폴더와 보고서를 현재 저장소에 병합할까요?");
+
+    if (!shouldImport) {
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const existingFolders = await getReportFolders();
+    const existingReports = await getStoredReports();
+    const folderNameMap = new Map(existingFolders.map((folder) => [folder.name, folder]));
+    const importedFolderIdMap = new Map();
+    let importedFolderCount = 0;
+    let importedReportCount = 0;
+    let skippedReportCount = 0;
+
+    for (const folder of backup.folders) {
+      const folderName = String(folder.name || "").trim() || "가져온 폴더";
+      const existingFolder = folderNameMap.get(folderName);
+
+      if (existingFolder) {
+        importedFolderIdMap.set(folder.id, existingFolder.id);
+        continue;
+      }
+
+      const nextFolder = {
+        id: createStorageId("folder"),
+        name: folderName,
+        createdAt: folder.createdAt || now,
+        updatedAt: folder.updatedAt || now
+      };
+
+      await addToStore(FOLDER_STORE_NAME, nextFolder);
+      folderNameMap.set(folderName, nextFolder);
+      importedFolderIdMap.set(folder.id, nextFolder.id);
+      importedFolderCount += 1;
+    }
+
+    if (!backup.folders.length) {
+      const defaultFolder = await ensureDefaultReportFolder();
+      importedFolderIdMap.set("default", defaultFolder.id);
+    }
+
+    const currentReports = existingReports.slice();
+
+    for (const report of backup.reports) {
+      // 전체 저장소 상한을 넘으면 가져오기 대상에서 제외합니다.
+      if (!hasReportStorageCapacity(currentReports.length)) {
+        skippedReportCount += 1;
+        continue;
+      }
+
+      const sourceFolderId = report.folderId && importedFolderIdMap.has(report.folderId)
+        ? importedFolderIdMap.get(report.folderId)
+        : (importedFolderIdMap.get("default") || (await ensureDefaultReportFolder()).id);
+      const reportsInFolder = currentReports.filter((item) => item.folderId === sourceFolderId);
+
+      if (reportsInFolder.length >= MAX_REPORTS_PER_FOLDER) {
+        skippedReportCount += 1;
+        continue;
+      }
+
+      const title = String(report.title || "").trim() || "가져온 보고서";
+      const content = String(report.content || "").trim();
+
+      if (!content) {
+        skippedReportCount += 1;
+        continue;
+      }
+
+      const nextReport = {
+        id: createStorageId("report"),
+        folderId: sourceFolderId,
+        title,
+        content,
+        createdAt: report.createdAt || now,
+        updatedAt: report.updatedAt || now
+      };
+
+      await addToStore(REPORT_STORE_NAME, nextReport);
+      await touchReportFolder(sourceFolderId);
+      currentReports.push(nextReport);
+      importedReportCount += 1;
+    }
+
+    setReportStorageStatus(
+      `백업 가져오기 완료: 폴더 ${importedFolderCount}개 추가, 보고서 ${importedReportCount}개 추가${skippedReportCount ? `, ${skippedReportCount}개 건너뜀` : ""}. ${getReportStorageLimitText(currentReports.length)}`,
+      "success"
+    );
+    await renderReportStorage();
+  } catch (error) {
+    setReportStorageStatus(error.message || "백업 파일을 가져오지 못했습니다.", "error");
+  }
+}
+
+async function resetReportStorage() {
+  const firstConfirm = confirm("현재 브라우저의 과거 보고서 저장소를 모두 초기화할까요?");
+
+  if (!firstConfirm) {
+    return;
+  }
+
+  const secondConfirm = confirm("삭제된 저장소는 백업 파일이 없으면 복구할 수 없습니다. 정말 초기화할까요?");
+
+  if (!secondConfirm) {
+    return;
+  }
+
+  try {
+    const folders = await getReportFolders();
+    const reports = await getStoredReports();
+
+    for (const report of reports) {
+      await deleteFromStore(REPORT_STORE_NAME, report.id);
+    }
+
+    for (const folder of folders) {
+      await deleteFromStore(FOLDER_STORE_NAME, folder.id);
+    }
+
+    await ensureDefaultReportFolder();
+    reportStorageSearchKeyword = "";
+
+    if (reportStorageSearchInput) {
+      reportStorageSearchInput.value = "";
+    }
+
+    setReportStorageStatus(`저장소를 초기화했습니다. ${getReportStorageLimitText(0)}`, "success");
+    await renderReportStorage();
+  } catch (error) {
+    setReportStorageStatus(error.message || "저장소를 초기화하지 못했습니다.", "error");
   }
 }
 
@@ -1919,8 +2287,14 @@ async function saveCurrentSampleReportToStorage() {
     const reports = await getStoredReports();
     const reportsInFolder = reports.filter((report) => report.folderId === folderId);
 
+    // 저장소가 과도하게 커지는 것을 막기 위한 최종 저장 제한입니다.
+    if (!hasReportStorageCapacity(reports.length)) {
+      alert(`전체 저장소에는 보고서를 최대 ${MAX_REPORTS_TOTAL}개까지 저장할 수 있습니다.`);
+      return;
+    }
+
     if (reportsInFolder.length >= MAX_REPORTS_PER_FOLDER) {
-      alert("이 폴더에는 보고서를 최대 10개까지 저장할 수 있습니다.");
+      alert(`이 폴더에는 보고서를 최대 ${MAX_REPORTS_PER_FOLDER}개까지 저장할 수 있습니다.`);
       return;
     }
 
@@ -1936,8 +2310,10 @@ async function saveCurrentSampleReportToStorage() {
       updatedAt: now
     });
 
+    await touchReportFolder(folderId);
+
     reportTitleForSaveInput.value = "";
-    setReportStorageStatus(`참고 보고서 ${activeStorageSampleIndex + 1} 내용이 저장되었습니다.`, "success");
+    setReportStorageStatus(`참고 보고서 ${activeStorageSampleIndex + 1} 내용이 저장되었습니다. ${getReportStorageLimitText(reports.length + 1)}`, "success");
     await renderReportStorage();
   } catch (error) {
     setReportStorageStatus(error.message || "보고서를 저장하지 못했습니다.", "error");
@@ -1973,7 +2349,14 @@ async function deleteStoredReport(reportId) {
   }
 
   try {
+    const report = await getFromStore(REPORT_STORE_NAME, reportId);
+
     await deleteFromStore(REPORT_STORE_NAME, reportId);
+
+    if (report && report.folderId) {
+      await touchReportFolder(report.folderId);
+    }
+
     setReportStorageStatus("저장된 보고서를 삭제했습니다.", "success");
     await renderReportStorage();
   } catch (error) {
@@ -2119,6 +2502,31 @@ if (createFolderBtn) {
 
 if (confirmSaveReportBtn) {
   confirmSaveReportBtn.addEventListener("click", saveCurrentSampleReportToStorage);
+}
+
+if (reportStorageSearchInput) {
+  reportStorageSearchInput.addEventListener("input", function () {
+    reportStorageSearchKeyword = normalizeReportSearchText(reportStorageSearchInput.value);
+    renderReportStorage();
+  });
+}
+
+if (exportReportStorageBtn) {
+  exportReportStorageBtn.addEventListener("click", exportReportStorageBackup);
+}
+
+if (importReportStorageBtn) {
+  importReportStorageBtn.addEventListener("click", openReportStorageImportPicker);
+}
+
+if (importReportStorageFileInput) {
+  importReportStorageFileInput.addEventListener("change", function (event) {
+    importReportStorageBackup(event.target.files && event.target.files[0]);
+  });
+}
+
+if (resetReportStorageBtn) {
+  resetReportStorageBtn.addEventListener("click", resetReportStorage);
 }
 
 window.addEventListener("resize", requestReportStoragePanelPositionUpdate);
