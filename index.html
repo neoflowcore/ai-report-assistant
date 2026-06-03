@@ -499,76 +499,6 @@
       font-weight: 800;
     }
 
-    .layout-toggle-wrap {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.58);
-      border: 1px solid rgba(207, 214, 220, 0.78);
-      box-shadow: var(--silver-shadow);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-    }
-
-    .layout-toggle-btn {
-      padding: 0.48rem 0.72rem !important;
-      border-radius: 999px !important;
-      font-size: 0.76rem !important;
-      font-weight: 800 !important;
-      line-height: 1 !important;
-      white-space: nowrap;
-      box-shadow: none !important;
-      transform: none !important;
-    }
-
-    #layoutFixedBtn {
-      background:
-        linear-gradient(135deg, var(--apple-dark-silver-light) 0%, var(--apple-dark-silver) 48%, var(--apple-dark-silver-deep) 100%) !important;
-      color: #ffffff !important;
-      border: 1px solid rgba(255, 255, 255, 0.30) !important;
-    }
-
-    #layoutResponsiveBtn {
-      background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.96), var(--apple-silver-2)) !important;
-      color: var(--apple-graphite) !important;
-      border: 1px solid rgba(207, 214, 220, 0.9) !important;
-    }
-
-    .layout-toggle-btn:not(.layout-active) {
-      opacity: 0.48;
-    }
-
-    .layout-toggle-btn.layout-active {
-      opacity: 1;
-      box-shadow:
-        0 8px 18px rgba(80, 90, 100, 0.16),
-        inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
-    }
-
-    #mainContentGrid {
-      min-width: 0;
-      width: 100%;
-    }
-
-    #mainContentGrid > div {
-      min-width: 0;
-    }
-
-    @media (min-width: 1024px) {
-      body.layout-fixed #mainContentGrid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-      }
-    }
-
-    @media (min-width: 769px) {
-      body.layout-responsive #mainContentGrid {
-        grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)) !important;
-      }
-    }
-
     html,
     body {
       max-width: 100%;
@@ -594,22 +524,6 @@
     }
 
     @media (max-width: 768px) {
-      .site-logo-wrap {
-        justify-content: space-between !important;
-        width: 100%;
-        align-items: center !important;
-        gap: 10px !important;
-      }
-
-      .layout-toggle-wrap {
-        flex-shrink: 0;
-      }
-
-      .layout-toggle-btn {
-        padding: 0.44rem 0.62rem !important;
-        font-size: 0.72rem !important;
-      }
-
       main,
       main > section {
         width: 100%;
@@ -740,27 +654,7 @@
           </p>
         </div>
 
-        <div class="site-logo-wrap flex md:justify-end items-start gap-3">
-          <div class="layout-toggle-wrap" aria-label="레이아웃 보기 방식 선택">
-            <button
-              id="layoutFixedBtn"
-              type="button"
-              class="layout-toggle-btn layout-active"
-              aria-pressed="true"
-            >
-              고정형
-            </button>
-
-            <button
-              id="layoutResponsiveBtn"
-              type="button"
-              class="layout-toggle-btn"
-              aria-pressed="false"
-            >
-              반응형
-            </button>
-          </div>
-
+        <div class="site-logo-wrap flex md:justify-end">
           <img
             src="./assets/reb-logo.png"
             alt="Korea Real Estate Board"
@@ -769,7 +663,7 @@
         </div>
       </header>
 
-      <div id="mainContentGrid" class="grid lg:grid-cols-2 gap-6">
+      <div class="grid lg:grid-cols-2 gap-6">
         <div class="space-y-5">
           <div>
             <label class="block font-semibold mb-2">1. 보고서 주제 / 분석 대상</label>
