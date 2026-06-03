@@ -109,7 +109,7 @@ function createSampleReportInput(index) {
         참고 보고서 ${index}
       </p>
 
-      <div class="flex items-center gap-2 flex-wrap justify-end">
+      <div class="sample-report-actions flex items-center gap-2 flex-wrap justify-end">
         <button
           type="button"
           class="save-sample-report-btn px-3 py-1 rounded-lg border border-indigo-200 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
