@@ -362,26 +362,38 @@
     #openGeminiBtn,
     #openAdjustGeminiBtn {
       background:
-        linear-gradient(135deg, #fbf8ef 0%, #eef1f3 55%, #dfe5e8 100%) !important;
-      color: #3a3429 !important;
-      border: 1px solid rgba(207, 214, 220, 0.88) !important;
-      box-shadow: var(--silver-shadow) !important;
+        linear-gradient(135deg, #ea4335 0%, #8bc34a 48%, #42a5f5 100%) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.42) !important;
+      box-shadow:
+        0 14px 30px rgba(66, 133, 244, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      font-weight: 800 !important;
+      text-shadow: 0 1px 3px rgba(24, 35, 48, 0.48);
     }
 
     #openGeminiBtn:hover,
     #openAdjustGeminiBtn:hover {
       background:
-        linear-gradient(135deg, #ffffff 0%, #eef1f3 55%, #e0e5e9 100%) !important;
+        linear-gradient(135deg, #f04f42 0%, #96d351 48%, #4db3ff 100%) !important;
+      box-shadow:
+        0 16px 34px rgba(66, 133, 244, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
     }
 
+    #copyPromptOnlyBtn,
     #copyAdjustPromptBtn {
       background:
         linear-gradient(135deg, #f7e4b3 0%, var(--apple-gold) 58%, #d0a957 100%) !important;
       color: #302410 !important;
       border: 1px solid rgba(216, 180, 95, 0.58) !important;
-      box-shadow: 0 14px 28px rgba(168, 120, 36, 0.15) !important;
+      box-shadow:
+        0 14px 28px rgba(168, 120, 36, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.58) !important;
+      font-weight: 800 !important;
     }
 
+    #copyPromptOnlyBtn:hover,
     #copyAdjustPromptBtn:hover {
       background:
         linear-gradient(135deg, #f9eac5 0%, #e4c26d 58%, #c79c45 100%) !important;
@@ -565,7 +577,7 @@
               <button
                 id="copyPromptOnlyBtn"
                 type="button"
-                class="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition text-sm"
+                class="bg-amber-600 text-white font-bold py-3 rounded-xl hover:bg-amber-700 transition text-sm"
               >
                 프롬프트 복사
               </button>
