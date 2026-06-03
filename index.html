@@ -399,7 +399,145 @@
         linear-gradient(135deg, #f9eac5 0%, #e4c26d 58%, #c79c45 100%) !important;
     }
 
+    .trend-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px 14px;
+    }
+
+    .trend-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .trend-title-wrap label {
+      margin-bottom: 0 !important;
+      white-space: nowrap;
+    }
+
+    .trend-control-groups {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .trend-control-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      padding: 2px 0;
+    }
+
+    .trend-badge {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--sub-ink);
+      white-space: nowrap;
+      letter-spacing: -0.02em;
+    }
+
+    .trend-vs-text {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: var(--sub-ink);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      padding: 0 2px;
+    }
+
+    .trend-mini-select {
+      width: 54px;
+      min-width: 54px;
+      padding: 0.55rem 0.5rem !important;
+      font-size: 0.84rem !important;
+      text-align: center;
+    }
+
+    .trend-direction-select {
+      width: 74px;
+      min-width: 74px;
+      padding: 0.55rem 0.7rem !important;
+      font-size: 0.84rem !important;
+      text-align: center;
+    }
+
+    .trend-rate-sm {
+      width: 66px;
+      min-width: 66px;
+      padding: 0.55rem 0.6rem !important;
+      font-size: 0.84rem !important;
+      text-align: center;
+    }
+
+    .trend-rate-md {
+      width: 86px;
+      min-width: 86px;
+      padding: 0.55rem 0.7rem !important;
+      font-size: 0.84rem !important;
+      text-align: center;
+    }
+
+    .trend-unit {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--sub-ink);
+      white-space: nowrap;
+    }
+
+    .trend-sign-inline {
+      width: 18px;
+      min-width: 18px;
+      text-align: center;
+      font-weight: 800;
+    }
+
     @media (max-width: 768px) {
+      .trend-header-row {
+        align-items: flex-start;
+      }
+
+      .trend-title-wrap,
+      .trend-control-groups {
+        width: 100%;
+      }
+
+      .trend-control-groups {
+        justify-content: flex-start;
+        gap: 8px 10px;
+      }
+
+      .trend-control-chip {
+        gap: 5px;
+      }
+
+      .trend-mini-select {
+        width: 50px;
+        min-width: 50px;
+      }
+
+      .trend-direction-select {
+        width: 70px;
+        min-width: 70px;
+      }
+
+      .trend-rate-sm {
+        width: 62px;
+        min-width: 62px;
+      }
+
+      .trend-rate-md {
+        width: 78px;
+        min-width: 78px;
+      }
+
       main {
         padding: 14px !important;
       }
@@ -511,16 +649,18 @@
           </div>
 
           <div>
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-2">
-              <div class="flex flex-col md:flex-row md:items-center gap-2">
+            <div class="trend-header-row mb-2">
+              <div class="trend-title-wrap">
                 <label class="block font-semibold">5. 수치 자료 / 변동 지표</label>
+              </div>
 
-                <div class="flex items-center gap-2">
-                  <span class="text-xs font-semibold text-slate-600">[전기]</span>
+              <div class="trend-control-groups">
+                <div class="trend-control-chip">
+                  <span class="trend-badge">전기</span>
 
                   <select
                     id="previousTrendSignSelect"
-                    class="w-14 border rounded-xl px-2 py-2 text-sm bg-white"
+                    class="trend-mini-select border rounded-xl bg-white"
                   >
                     <option value="+">+</option>
                     <option value="-">-</option>
@@ -532,38 +672,42 @@
                     min="0"
                     step="0.01"
                     inputmode="decimal"
-                    class="w-16 border rounded-xl px-3 py-2 text-sm"
+                    class="trend-rate-sm border rounded-xl"
                     placeholder="0.00"
                   />
 
-                  <span class="text-sm font-semibold text-slate-600">%</span>
+                  <span class="trend-unit">%</span>
                 </div>
-              </div>
 
-              <div class="flex items-center gap-2">
-                <select
-                  id="trendDirectionSelect"
-                  class="border rounded-xl px-3 py-2 text-sm bg-white"
-                >
-                  <option value="보합">보합</option>
-                  <option value="상승">상승</option>
-                  <option value="급등">급등</option>
-                  <option value="하락">하락</option>
-                  <option value="급락">급락</option>
-                </select>
+                <span class="trend-vs-text">vs</span>
 
-                <span id="trendSignLabel" class="w-6 text-center font-bold text-slate-700">±</span>
+                <div class="trend-control-chip">
+                  <span class="trend-badge">현기</span>
 
-                <input
-                  id="trendRateInput"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  class="w-24 border rounded-xl px-3 py-2 text-sm"
-                  placeholder="0.23"
-                />
+                  <select
+                    id="trendDirectionSelect"
+                    class="trend-direction-select border rounded-xl bg-white"
+                  >
+                    <option value="보합">보합</option>
+                    <option value="상승">상승</option>
+                    <option value="급등">급등</option>
+                    <option value="하락">하락</option>
+                    <option value="급락">급락</option>
+                  </select>
 
-                <span class="text-sm font-semibold text-slate-600">%</span>
+                  <span id="trendSignLabel" class="trend-sign-inline text-slate-700">±</span>
+
+                  <input
+                    id="trendRateInput"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    class="trend-rate-md border rounded-xl"
+                    placeholder="0.23"
+                  />
+
+                  <span class="trend-unit">%</span>
+                </div>
               </div>
             </div>
 
