@@ -27,7 +27,8 @@ const finalCountWithSpace = document.getElementById("finalCountWithSpace");
 const finalCountWithoutSpace = document.getElementById("finalCountWithoutSpace");
 
 const targetLengthInput = document.getElementById("targetLengthInput");
-const lengthBasisSelect = document.getElementById("lengthBasisSelect");
+const volumeModeSelect = document.getElementById("volumeModeSelect");
+const volumeModeHelpText = document.getElementById("volumeModeHelpText");
 
 const copyAdjustPromptBtn = document.getElementById("copyAdjustPromptBtn");
 const openAdjustChatGptBtn = document.getElementById("openAdjustChatGptBtn");
@@ -524,7 +525,7 @@ async function generateAndCopyPrompt(targetUrl) {
   }
 }
 
-function countKoreanChars(text, lengthBasis) {
+function countKoreanChars(text, lengthBasis = "공백 포함") {
   const targetText = lengthBasis === "공백 제외"
     ? text.replace(/\s/g, "")
     : text;
@@ -539,15 +540,110 @@ function formatPercentValue(value) {
     : `${percent.toFixed(1)}%`;
 }
 
-function parseVolumeTarget(rawValue, baseCount) {
+function getVolumeModeLabel(mode) {
+  const labels = {
+    percent: "퍼센트(%)",
+    range: "퍼센트 범위(%)",
+    multiple: "배수(몇 배)",
+    fraction: "분수/비율"
+  };
+
+  return labels[mode] || labels.percent;
+}
+
+function getDefaultTargetByMode(mode) {
+  const defaults = {
+    percent: "50",
+    range: "45~55",
+    multiple: "0.5",
+    fraction: "1/2"
+  };
+
+  return defaults[mode] || defaults.percent;
+}
+
+function getPlaceholderByMode(mode) {
+  const placeholders = {
+    percent: "예: 50 또는 150",
+    range: "예: 45~55 또는 145~155",
+    multiple: "예: 0.5 또는 1.5",
+    fraction: "예: 1/2 또는 3/2"
+  };
+
+  return placeholders[mode] || placeholders.percent;
+}
+
+function getHelpTextByMode(mode) {
+  const helpTexts = {
+    percent: "퍼센트 모드: 50 또는 150처럼 입력하면 원문 대비 50% 또는 150%로 조정합니다.",
+    range: "퍼센트 범위 모드: 45~55처럼 입력하면 원문 대비 45%~55% 사이로 조정합니다.",
+    multiple: "배수 모드: 0.5 또는 1.5처럼 입력하면 원문 대비 0.5배 또는 1.5배로 조정합니다.",
+    fraction: "분수/비율 모드: 1/2 또는 3/2처럼 입력하면 원문 대비 1/2 또는 3/2 수준으로 조정합니다."
+  };
+
+  return helpTexts[mode] || helpTexts.percent;
+}
+
+function updateVolumeModeGuide() {
+  const mode = volumeModeSelect.value || "percent";
+  targetLengthInput.placeholder = getPlaceholderByMode(mode);
+  volumeModeHelpText.textContent = getHelpTextByMode(mode);
+}
+
+function buildVolumeTarget(baseCount, mode, targetRatio, description) {
+  const tolerance = 0.05;
+  const lowerRatio = Math.max(0.01, targetRatio - tolerance);
+  const upperRatio = targetRatio + tolerance;
+
+  return {
+    mode,
+    modeLabel: getVolumeModeLabel(mode),
+    targetRatio,
+    lowerRatio,
+    upperRatio,
+    targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
+    lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
+    upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
+    description
+  };
+}
+
+function parseVolumeTarget(rawValue, baseCount, mode) {
   const value = String(rawValue || "")
     .trim()
     .replace(/,/g, "")
     .replace(/\s/g, "")
     .replace(/％/g, "%");
 
-  const rangeMatch = value.match(/^(\d+(?:\.\d+)?)~(\d+(?:\.\d+)?)%$/);
-  if (rangeMatch) {
+  if (!value) {
+    return null;
+  }
+
+  if (mode === "percent") {
+    const percentMatch = value.match(/^(\d+(?:\.\d+)?)%?$/);
+
+    if (!percentMatch) {
+      return null;
+    }
+
+    const percent = Number(percentMatch[1]);
+    const targetRatio = percent / 100;
+
+    return buildVolumeTarget(
+      baseCount,
+      mode,
+      targetRatio,
+      `원문 대비 약 ${formatPercentValue(targetRatio)}`
+    );
+  }
+
+  if (mode === "range") {
+    const rangeMatch = value.match(/^(\d+(?:\.\d+)?)[~-](\d+(?:\.\d+)?)%?$/);
+
+    if (!rangeMatch) {
+      return null;
+    }
+
     let lowerRatio = Number(rangeMatch[1]) / 100;
     let upperRatio = Number(rangeMatch[2]) / 100;
 
@@ -560,7 +656,8 @@ function parseVolumeTarget(rawValue, baseCount) {
     const targetRatio = (lowerRatio + upperRatio) / 2;
 
     return {
-      mode: "range",
+      mode,
+      modeLabel: getVolumeModeLabel(mode),
       targetRatio,
       lowerRatio,
       upperRatio,
@@ -571,26 +668,30 @@ function parseVolumeTarget(rawValue, baseCount) {
     };
   }
 
-  const percentMatch = value.match(/^(\d+(?:\.\d+)?)%$/);
-  if (percentMatch) {
-    const targetRatio = Number(percentMatch[1]) / 100;
-    const lowerRatio = Math.max(0.01, targetRatio - 0.05);
-    const upperRatio = targetRatio + 0.05;
+  if (mode === "multiple") {
+    const multipleMatch = value.match(/^(\d+(?:\.\d+)?)(?:배|x|X)?$/);
 
-    return {
-      mode: "percent",
+    if (!multipleMatch) {
+      return null;
+    }
+
+    const targetRatio = Number(multipleMatch[1]);
+
+    return buildVolumeTarget(
+      baseCount,
+      mode,
       targetRatio,
-      lowerRatio,
-      upperRatio,
-      targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
-      lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
-      upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
-      description: `원문 대비 약 ${formatPercentValue(targetRatio)}`
-    };
+      `원문 대비 약 ${targetRatio}배(${formatPercentValue(targetRatio)})`
+    );
   }
 
-  const fractionMatch = value.match(/^(\d+)\/(\d+)$/);
-  if (fractionMatch) {
+  if (mode === "fraction") {
+    const fractionMatch = value.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+
+    if (!fractionMatch) {
+      return null;
+    }
+
     const numerator = Number(fractionMatch[1]);
     const denominator = Number(fractionMatch[2]);
 
@@ -599,76 +700,44 @@ function parseVolumeTarget(rawValue, baseCount) {
     }
 
     const targetRatio = numerator / denominator;
-    const lowerRatio = Math.max(0.01, targetRatio * 0.90);
-    const upperRatio = targetRatio * 1.10;
 
-    return {
-      mode: "fraction",
+    return buildVolumeTarget(
+      baseCount,
+      mode,
       targetRatio,
-      lowerRatio,
-      upperRatio,
-      targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
-      lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
-      upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
-      description: `현재 문서의 약 ${value} 수준`
-    };
-  }
-
-  const multipleMatch = value.match(/^(\d+(?:\.\d+)?)(배|x|X)$/);
-  if (multipleMatch) {
-    const targetRatio = Number(multipleMatch[1]);
-    const lowerRatio = Math.max(0.01, targetRatio * 0.90);
-    const upperRatio = targetRatio * 1.10;
-
-    return {
-      mode: "multiple",
-      targetRatio,
-      lowerRatio,
-      upperRatio,
-      targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
-      lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
-      upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
-      description: `원문 대비 약 ${formatPercentValue(targetRatio)}`
-    };
-  }
-
-  const numberMatch = value.match(/^(\d+(?:\.\d+)?)(?:자|글자)?$/);
-  if (numberMatch) {
-    const targetCount = Math.max(1, Math.round(Number(numberMatch[1])));
-    const targetRatio = targetCount / baseCount;
-    const lowerRatio = Math.max(0.01, targetRatio * 0.90);
-    const upperRatio = targetRatio * 1.10;
-
-    return {
-      mode: "count",
-      targetRatio,
-      lowerRatio,
-      upperRatio,
-      targetCount,
-      lowerCount: Math.max(1, Math.round(targetCount * 0.90)),
-      upperCount: Math.max(1, Math.round(targetCount * 1.10)),
-      description: `참고 글자수 약 ${targetCount.toLocaleString()}자`
-    };
+      `원문 대비 약 ${value} 수준(${formatPercentValue(targetRatio)})`
+    );
   }
 
   return null;
 }
 
+function getTargetInputErrorMessage(mode) {
+  const messages = {
+    percent: "퍼센트 모드에서는 50 또는 150처럼 입력해 주세요.",
+    range: "퍼센트 범위 모드에서는 45~55 또는 145~155처럼 입력해 주세요.",
+    multiple: "배수 모드에서는 0.5 또는 1.5처럼 입력해 주세요.",
+    fraction: "분수/비율 모드에서는 1/2 또는 3/2처럼 입력해 주세요."
+  };
+
+  return messages[mode] || messages.percent;
+}
+
 function buildLengthAdjustmentPrompt() {
   const originalText = finalReportInput.value.trim();
-  const rawTargetLength = targetLengthInput.value.trim() || "50%";
-  const lengthBasis = lengthBasisSelect.value || "공백 포함";
+  const volumeMode = volumeModeSelect.value || "percent";
+  const rawTargetLength = targetLengthInput.value.trim() || getDefaultTargetByMode(volumeMode);
 
   if (!originalText) {
     alert("먼저 보고서 초안을 붙여넣어 주세요.");
     return null;
   }
 
-  const basisCount = countKoreanChars(originalText, lengthBasis);
-  const volumeTarget = parseVolumeTarget(rawTargetLength, basisCount);
+  const basisCount = countKoreanChars(originalText, "공백 포함");
+  const volumeTarget = parseVolumeTarget(rawTargetLength, basisCount, volumeMode);
 
   if (!volumeTarget) {
-    alert("목표 분량은 50%, 45~55%, 1/3, 0.5배, 1170자 형식으로 입력해 주세요.");
+    alert(getTargetInputErrorMessage(volumeMode));
     return null;
   }
 
@@ -678,24 +747,25 @@ function buildLengthAdjustmentPrompt() {
       ? "확장"
       : "유지 또는 미세 조정";
 
-  const unusedBasis = lengthBasis === "공백 포함" ? "공백 제외" : "공백 포함";
   const targetRatioText = formatPercentValue(volumeTarget.targetRatio);
   const lowerRatioText = formatPercentValue(volumeTarget.lowerRatio);
   const upperRatioText = formatPercentValue(volumeTarget.upperRatio);
 
   return `
-[원문 대비 분량 조정 AI 최종 조정 프롬프트]
+[원문 대비 분량 비율 조정 AI 최종 조정 프롬프트]
 
 너는 한국어 보고서 전문 편집자다.
-아래 원문을 목표 분량에 맞게 편집하라.
+아래 원문을 목표 분량 비율에 맞게 편집하라.
 
 ────────────────────
 [최우선 규칙]
 ────────────────────
 
-이번 작업의 최우선 목표는 정확한 글자 수 자체가 아니라 원문 대비 분량 비율을 맞추는 것이다.
+이번 작업의 최우선 목표는 특정 글자 수 기준을 맞추는 것이 아니라 원문 대비 분량 비율을 맞추는 것이다.
 
-글자 수는 비율 판단을 위한 참고 기준이며, 결과문의 자연스러움과 보고서 품질을 훼손하지 않는 범위에서 사용한다.
+글자 수는 비율 판단을 위한 참고값으로만 사용한다.
+
+공백 포함/공백 제외 같은 글자 수 기준 선택은 사용하지 않는다.
 
 원문 대비 분량 비율이 지정 범위 안에 들어오면 성공으로 간주한다.
 
@@ -705,19 +775,22 @@ function buildLengthAdjustmentPrompt() {
 [이번 작업의 분량 조건]
 ────────────────────
 
-- 사용자가 입력한 목표 분량: ${rawTargetLength}
+- 조정 방식: ${volumeTarget.modeLabel}
+- 사용자가 입력한 목표 값: ${rawTargetLength}
 - 적용된 목표 해석: ${volumeTarget.description}
 - 조정 방향: ${adjustmentDirection}
 
 [분량 산정 기준]
-- 적용 기준: ${lengthBasis}
-- 원문 기준 분량: ${basisCount.toLocaleString()}자
+- 적용 기준: 원문 전체 분량 대비 비율
+- 원문 기준 분량: ${basisCount.toLocaleString()}자(공백 포함 참고값)
 - 목표 참고 분량: 약 ${volumeTarget.targetCount.toLocaleString()}자
 - 허용 범위: 약 ${volumeTarget.lowerCount.toLocaleString()}자 ~ ${volumeTarget.upperCount.toLocaleString()}자
+- 목표 비율: 원문 대비 약 ${targetRatioText}
 - 허용 비율: 원문 대비 ${lowerRatioText} ~ ${upperRatioText}
 
-※ 모든 분량 계산은 ${lengthBasis} 기준으로만 수행한다.
-※ ${unusedBasis} 글자 수는 계산에 사용하지 않는다.
+※ 위 글자 수는 비율 계산을 돕기 위한 공백 포함 참고값이다.
+※ 공백 제외 글자 수는 계산에 사용하지 않는다.
+※ 최종 판단은 글자 수 기준이 아니라 원문 대비 분량 비율 기준으로 한다.
 
 정확한 글자 수 하나에 맞추려고 하지 말고, 원문 대비 분량 비율이 자연스럽게 맞도록 조정한다.
 
@@ -792,7 +865,7 @@ function buildLengthAdjustmentPrompt() {
 출력 전 반드시 내부적으로 다음을 확인한다.
 
 1. 결과문이 원문 대비 ${lowerRatioText} ~ ${upperRatioText} 범위인지 확인한다.
-2. 결과문이 약 ${volumeTarget.lowerCount.toLocaleString()}자 ~ ${volumeTarget.upperCount.toLocaleString()}자 범위인지 확인한다.
+2. 참고 글자 수로 보면 약 ${volumeTarget.lowerCount.toLocaleString()}자 ~ ${volumeTarget.upperCount.toLocaleString()}자 범위인지 확인한다.
 3. 범위를 벗어나면 다시 편집한다.
 4. 검산 과정은 출력하지 않는다.
 
@@ -929,6 +1002,8 @@ openAdjustGeminiBtn.addEventListener("click", function () {
   generateAndCopyAdjustmentPrompt(GEMINI_URL);
 });
 
+volumeModeSelect.addEventListener("change", updateVolumeModeGuide);
+
 trendDirectionSelect.addEventListener("change", updateTrendPreview);
 trendRateInput.addEventListener("input", updateTrendPreview);
 
@@ -941,4 +1016,5 @@ addSourceLinkInput();
 addSampleReportInput();
 updateDraftCharacterCount();
 updateFinalReportCharacterCount();
+updateVolumeModeGuide();
 updateTrendPreview();
