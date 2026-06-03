@@ -3,1223 +3,1611 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>모두의 부동산 보고서</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/nanumsquareneo@0.0.5/nanumsquareneo.css"
+  />
 
-  <style>
-    :root {
-      --bg: #f4f7fb;
-      --card: #ffffff;
-      --primary: #234f73;
-      --primary-dark: #163952;
-      --secondary: #4f6f8f;
-      --success: #2f6f4e;
-      --warning: #b7791f;
-      --purple: #6d5dfc;
-      --danger: #b42318;
-      --line: #d8e2ec;
-      --soft-line: #edf1f5;
-      --text: #1f2933;
-      --muted: #667085;
-      --light: #f8fafc;
-      --white: #ffffff;
-      --shadow: 0 10px 28px rgba(35, 79, 115, 0.09);
-      --radius: 18px;
+  <script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root {
+    --ink: #1d1d1f;
+    --sub-ink: #5f6368;
+
+  --reb-navy: #0b4f9c;
+  --reb-blue: #155da8;
+  --reb-cyan: #25b7e5;
+
+  --apple-gold: #e2c36f;
+  --apple-gold-light: #f7e7bd;
+  --apple-gold-soft: #fff9e9;
+  --apple-gold-deep: #b78d37;
+
+  --apple-silver: #f7f8f9;
+  --apple-silver-2: #e8ecef;
+  --apple-silver-3: #cfd6dc;
+  --apple-dark-silver-light: #b6bec5;
+  --apple-dark-silver: #858f99;
+  --apple-dark-silver-deep: #68737d;
+  --apple-graphite: #1f2328;
+  --apple-graphite-2: #343a40;
+
+  --gold-shadow: 0 14px 30px rgba(168, 120, 36, 0.18);
+  --silver-shadow: 0 14px 30px rgba(80, 90, 100, 0.12);
+    
+    --reb-navy: #0b4f9c;
+    --reb-blue: #155da8;
+    --reb-cyan: #25b7e5;
+
+    --paper: rgba(255, 255, 255, 0.82);
+    --paper-solid: #ffffff;
+
+    --mint-bg: #eef7f2;
+    --mint-soft: #dcece4;
+    --sage: #9ab8a3;
+    --sage-deep: #7f9f8d;
+
+    --cream: #fff8df;
+    --peach: #f8d3bc;
+    --coral: #f4a29d;
+    --lavender: #dcc0ce;
+    --mist: #d8dde3;
+
+    --line: rgba(29, 29, 31, 0.10);
+    --shadow-soft: 0 24px 70px rgba(40, 58, 50, 0.12);
+    --shadow-card: 0 12px 32px rgba(40, 58, 50, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+body {
+  font-family: "NanumSquareNeo", "NanumSquare Neo", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-weight: 400;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(37, 183, 229, 0.18) 0%, transparent 32%),
+    radial-gradient(circle at 100% 8%, rgba(31, 138, 134, 0.18) 0%, transparent 34%),
+    linear-gradient(135deg, #f8fbfc 0%, #eef8f9 48%, #ffffff 100%) !important;
+}
+
+.site-kicker {
+  color: var(--reb-blue);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-logo-wrap {
+  min-width: 90px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.site-logo {
+  width: 86px;   /* 260px의 약 1/3 */
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+  main {
+    padding-top: 28px !important;
+    padding-bottom: 48px !important;
+  }
+
+  main > section {
+    background: var(--paper) !important;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    box-shadow: var(--shadow-soft) !important;
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+  }
+
+  h1 {
+    color: var(--ink);
+    letter-spacing: -0.045em;
+    line-height: 1.08;
+  }
+
+  p,
+  label,
+  li,
+  span {
+    letter-spacing: -0.015em;
+  }
+
+  label,
+  .font-semibold,
+  .font-bold {
+    color: var(--ink);
+  }
+
+  .text-slate-600,
+  .text-slate-500 {
+    color: var(--sub-ink) !important;
+  }
+
+  .text-blue-600 {
+    color: var(--sage-deep) !important;
+  }
+
+  input,
+  textarea,
+  select {
+    border: 1px solid var(--line) !important;
+    background: rgba(255, 255, 255, 0.78) !important;
+    border-radius: 18px !important;
+    color: var(--ink) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(95, 99, 104, 0.58) !important;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none !important;
+    border-color: rgba(127, 159, 141, 0.72) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    box-shadow:
+      0 0 0 4px rgba(154, 184, 163, 0.20),
+      inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+  }
+
+  button {
+    border-radius: 16px !important;
+    letter-spacing: -0.02em;
+    border: 1px solid rgba(255, 255, 255, 0.58) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition:
+      transform 0.16s ease,
+      box-shadow 0.16s ease,
+      background 0.16s ease,
+      opacity 0.16s ease;
+  }
+
+  button:hover {
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    transform: translateY(0);
+    opacity: 0.88;
+  }
+
+  .bg-blue-600 {
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.96), var(--apple-silver-2)) !important;
+    color: var(--apple-graphite) !important;
+    border: 1px solid rgba(207, 214, 220, 0.9) !important;
+    box-shadow: var(--silver-shadow) !important;
+  }
+
+  .hover\:bg-blue-700:hover {
+    background:
+      linear-gradient(135deg, #ffffff, #e4e8eb) !important;
+  }
+
+  .bg-slate-900 {
+    background:
+      linear-gradient(135deg, var(--apple-dark-silver-light) 0%, var(--apple-dark-silver) 48%, var(--apple-dark-silver-deep) 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    box-shadow:
+      0 14px 28px rgba(93, 104, 114, 0.20),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  }
+
+  .hover\:bg-black:hover {
+    background:
+      linear-gradient(135deg, #c0c7ce 0%, #909aa4 50%, #75808a 100%) !important;
+  }
+
+  .bg-purple-600 {
+    background:
+      linear-gradient(135deg, #fbf8ef 0%, #eef1f3 55%, #dfe5e8 100%) !important;
+    color: #3a3429 !important;
+    border: 1px solid rgba(207, 214, 220, 0.88) !important;
+    box-shadow: var(--silver-shadow) !important;
+  }
+
+  .hover\:bg-purple-700:hover {
+    background:
+      linear-gradient(135deg, #ffffff 0%, #eef1f3 55%, #e0e5e9 100%) !important;
+  }
+
+  .bg-amber-500,
+  .bg-amber-600 {
+    background:
+      linear-gradient(135deg, #f7e4b3 0%, var(--apple-gold) 58%, #d0a957 100%) !important;
+    color: #302410 !important;
+    border: 1px solid rgba(216, 180, 95, 0.58) !important;
+    box-shadow: 0 14px 28px rgba(168, 120, 36, 0.15) !important;
+  }
+
+  .hover\:bg-amber-600:hover,
+  .hover\:bg-amber-700:hover {
+    background:
+      linear-gradient(135deg, #f9eac5 0%, #e4c26d 58%, #c79c45 100%) !important;
+  }
+
+  .bg-blue-50 {
+    background: rgba(238, 247, 242, 0.88) !important;
+    border-color: rgba(154, 184, 163, 0.35) !important;
+    box-shadow: var(--shadow-card);
+  }
+
+  .text-blue-800,
+  .text-blue-900 {
+    color: #375846 !important;
+  }
+
+  .bg-slate-50 {
+    background: rgba(255, 255, 255, 0.62) !important;
+    border-color: rgba(216, 221, 227, 0.72) !important;
+    box-shadow: var(--shadow-card);
+  }
+
+  .bg-indigo-50 {
+    background: rgba(238, 247, 242, 0.76) !important;
+    border-color: rgba(127, 159, 141, 0.28) !important;
+    box-shadow: var(--shadow-card);
+  }
+
+  .text-indigo-800,
+  .text-indigo-700,
+  .text-indigo-600,
+  .text-indigo-500 {
+    color: #4f735f !important;
+  }
+
+  .border-indigo-200,
+  .border-indigo-100 {
+    border-color: rgba(127, 159, 141, 0.28) !important;
+  }
+
+  .bg-indigo-50\/40 {
+    background: rgba(238, 247, 242, 0.50) !important;
+  }
+
+  .bg-amber-50 {
+    background:
+      linear-gradient(145deg, rgba(255, 253, 247, 0.94), rgba(247, 248, 249, 0.88)) !important;
+    border: 1px solid rgba(226, 195, 111, 0.32) !important;
+    box-shadow:
+      0 22px 48px rgba(168, 120, 36, 0.09),
+      inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+  }
+
+  .text-amber-800,
+  .text-amber-900 {
+    color: #7a4a22 !important;
+  }
+
+  .bg-emerald-50 {
+    background: rgba(238, 247, 242, 0.82) !important;
+    border-color: rgba(154, 184, 163, 0.40) !important;
+    box-shadow: var(--shadow-card);
+  }
+
+  .bg-emerald-600 {
+    background: linear-gradient(135deg, var(--sage-deep), var(--sage)) !important;
+    color: #ffffff !important;
+  }
+
+  .rounded-2xl {
+    border-radius: 26px !important;
+  }
+
+  .rounded-xl {
+    border-radius: 18px !important;
+  }
+
+  .shadow-xl {
+    box-shadow: var(--shadow-soft) !important;
+  }
+
+  .border {
+    border-color: var(--line) !important;
+  }
+
+  .sample-report-row,
+  #finalReportBox,
+  #finalReportInput {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+
+  #copyFinalReportBtn {
+    background:
+      linear-gradient(135deg, #f7e4b3 0%, #e2c36f 52%, #cda052 100%) !important;
+    color: #2f2411 !important;
+    border: 1px solid rgba(205, 160, 82, 0.50) !important;
+    box-shadow:
+      0 16px 32px rgba(168, 120, 36, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.66) !important;
+    font-weight: 800 !important;
+  }
+
+  #copyFinalReportBtn:hover {
+    background:
+      linear-gradient(135deg, #f9e9c3 0%, #dfbd63 52%, #bf9140 100%) !important;
+  }
+
+
+  #openChatGptBtn,
+  #openAdjustChatGptBtn {
+    background:
+      linear-gradient(135deg, var(--apple-dark-silver-light) 0%, var(--apple-dark-silver) 48%, var(--apple-dark-silver-deep) 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    box-shadow:
+      0 14px 28px rgba(93, 104, 114, 0.20),
+      inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+  }
+
+  #openChatGptBtn:hover,
+  #openAdjustChatGptBtn:hover {
+    background:
+      linear-gradient(135deg, #c0c7ce 0%, #909aa4 50%, #75808a 100%) !important;
+  }
+
+  #openGeminiBtn,
+  #openAdjustGeminiBtn {
+    background:
+      linear-gradient(135deg, #fbf8ef 0%, #eef1f3 55%, #dfe5e8 100%) !important;
+    color: #3a3429 !important;
+    border: 1px solid rgba(207, 214, 220, 0.88) !important;
+    box-shadow: var(--silver-shadow) !important;
+  }
+
+  #openGeminiBtn:hover,
+  #openAdjustGeminiBtn:hover {
+    background:
+      linear-gradient(135deg, #ffffff 0%, #eef1f3 55%, #e0e5e9 100%) !important;
+  }
+
+  #copyAdjustPromptBtn {
+    background:
+      linear-gradient(135deg, #f7e4b3 0%, var(--apple-gold) 58%, #d0a957 100%) !important;
+    color: #302410 !important;
+    border: 1px solid rgba(216, 180, 95, 0.58) !important;
+    box-shadow: 0 14px 28px rgba(168, 120, 36, 0.15) !important;
+  }
+
+  #copyAdjustPromptBtn:hover {
+    background:
+      linear-gradient(135deg, #f9eac5 0%, #e4c26d 58%, #c79c45 100%) !important;
+  }
+
+  @media (max-width: 768px) {
+    main {
+      padding: 14px !important;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    .top-bar {
-      background: linear-gradient(135deg, #234f73, #163952);
-      color: var(--white);
-      border-bottom: 4px solid #d6a21e;
-    }
-
-    .top-inner {
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 34px 22px 32px;
-    }
-
-    .system-label {
-      display: inline-flex;
-      align-items: center;
-      margin: 0 0 10px;
-      padding: 5px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.28);
+    main > section {
+      padding: 22px !important;
+      border-radius: 24px !important;
     }
 
     h1 {
-      margin: 0;
-      font-size: 32px;
-      letter-spacing: -0.04em;
+      font-size: 2rem !important;
     }
-
-    .subtitle {
-      margin: 10px 0 0;
-      color: #e8eef5;
-      font-size: 15px;
-    }
-
-    .page {
-      max-width: 1380px;
-      margin: 28px auto 36px;
-      padding: 0 22px;
-      display: grid;
-      grid-template-columns: 1.08fr 0.92fr;
-      gap: 24px;
-      align-items: start;
-    }
-
-    .column {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .card-head {
-      padding: 20px 22px;
-      border-bottom: 1px solid var(--soft-line);
-      background: linear-gradient(180deg, #ffffff, #fbfdff);
-    }
-
-    .card-head.row {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .card-body {
-      padding: 22px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-
-    .badge {
-      display: inline-flex;
-      min-width: 42px;
-      height: 30px;
-      padding: 0 10px;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      background: var(--primary);
-      color: var(--white);
-      font-size: 13px;
-      font-weight: 800;
-      flex-shrink: 0;
-    }
-
-    .badge.green {
-      background: var(--success);
-    }
-
-    .badge.gold {
-      background: var(--warning);
-    }
-
-    .badge.purple {
-      background: var(--purple);
-    }
-
-    .section-title h2 {
-      margin: 0;
-      font-size: 20px;
-      color: var(--primary-dark);
-      letter-spacing: -0.02em;
-    }
-
-    .section-title p {
-      margin: 4px 0 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .input-card {
-      border-top: 5px solid var(--primary);
-    }
-
-    .guide-card {
-      border-top: 5px solid var(--secondary);
-    }
-
-    .prompt-card {
-      border-top: 5px solid var(--success);
-    }
-
-    .revision-card {
-      border-top: 5px solid var(--warning);
-    }
-
-    .length-card {
-      border-top: 5px solid var(--purple);
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 15px;
-      font-weight: 800;
-      color: #263849;
-    }
-
-    input,
-    textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 11px 12px;
-      font-size: 15px;
-      font-family: inherit;
-      color: var(--text);
-      background: #fbfdff;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    input:focus,
-    textarea:focus {
-      outline: none;
-      border-color: var(--primary);
-      background: var(--white);
-      box-shadow: 0 0 0 3px rgba(35, 79, 115, 0.12);
-    }
-
-    .usage-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      counter-reset: step;
-    }
-
-    .usage-list li {
-      position: relative;
-      padding: 14px 14px 14px 54px;
-      margin-bottom: 12px;
-      background: var(--light);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-    }
-
-    .usage-list li::before {
-      counter-increment: step;
-      content: counter(step);
-      position: absolute;
-      left: 15px;
-      top: 15px;
-      width: 27px;
-      height: 27px;
-      border-radius: 50%;
-      background: var(--primary-dark);
-      color: var(--white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .usage-list strong {
-      display: block;
-      color: var(--primary-dark);
-      margin-bottom: 2px;
-    }
-
-    .usage-list span {
-      display: block;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .button-row,
-    .prompt-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .prompt-actions {
-      justify-content: flex-end;
-    }
-
-    .btn {
-      border: none;
-      border-radius: 11px;
-      padding: 11px 16px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.15s, background 0.2s, box-shadow 0.2s;
-      white-space: nowrap;
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: var(--white);
-      box-shadow: 0 5px 14px rgba(35, 79, 115, 0.22);
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-light {
-      background: #ffffff;
-      color: var(--primary-dark);
-      border: 1px solid var(--line);
-    }
-
-    .btn-light:hover {
-      background: var(--light);
-    }
-
-    .btn-copy {
-      background: var(--success);
-      color: var(--white);
-    }
-
-    .btn-copy:hover {
-      background: #255a3e;
-    }
-
-    .btn-chatgpt {
-      background: #111827;
-      color: var(--white);
-    }
-
-    .btn-chatgpt:hover {
-      background: #000000;
-    }
-
-    .btn-gemini {
-      background: #315f86;
-      color: var(--white);
-    }
-
-    .btn-gemini:hover {
-      background: #244966;
-    }
-
-    .btn-revision {
-      background: var(--warning);
-      color: var(--white);
-      box-shadow: 0 5px 14px rgba(183, 121, 31, 0.22);
-    }
-
-    .btn-revision:hover {
-      background: #955f15;
-    }
-
-    .btn-length {
-      background: var(--purple);
-      color: #ffffff;
-      box-shadow: 0 5px 14px rgba(109, 93, 252, 0.22);
-    }
-
-    .btn-length:hover {
-      background: #5848d9;
-    }
-
-    .result-box {
-      min-height: 280px;
-      background: #f8fafc;
-      font-size: 14px;
-      line-height: 1.7;
-      white-space: pre-wrap;
-    }
-
-    .result-box.small {
-      min-height: 190px;
-      margin-top: 14px;
-    }
-
-    .message {
-      min-height: 23px;
-      margin: 10px 0 0;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .message.success {
-      color: var(--success);
-      font-weight: 800;
-    }
-
-    .message.error {
-      color: var(--danger);
-      font-weight: 800;
-    }
-
-    .notice {
-      margin: 0;
-      padding: 13px 15px;
-      border-radius: 13px;
-      background: #f7fafc;
-      border: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .count-panel {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin: 12px 0 16px;
-    }
-
-    .count-panel div {
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #f8fafc;
-    }
-
-    .count-panel strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--primary-dark);
-      font-size: 14px;
-    }
-
-    .count-panel span {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--purple);
-    }
-
-    .footer {
-      max-width: 1380px;
-      margin: 0 auto 30px;
-      padding: 0 22px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    @media (max-width: 1080px) {
-      .page {
-        grid-template-columns: 1fr;
-      }
-
-      .prompt-actions {
-        justify-content: flex-start;
-      }
-
-      .card-head.row {
-        align-items: flex-start;
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 720px) {
-      .top-inner {
-        padding: 28px 18px;
-      }
-
-      h1 {
-        font-size: 26px;
-      }
-
-      .page {
-        margin-top: 20px;
-        padding: 0 14px;
-      }
-
-      .card-head,
-      .card-body {
-        padding: 18px;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .btn {
-        width: 100%;
-      }
-
-      .button-row,
-      .prompt-actions {
-        width: 100%;
-      }
-
-      .result-box {
-        min-height: 230px;
-      }
-
-      .count-panel {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 
-<body>
-  <header class="top-bar">
-    <div class="top-inner">
-      <p class="system-label">공공기관 내부 업무용 보고서 지원 도구</p>
-      <h1>모두의 부동산 보고서</h1>
-      <p class="subtitle">
-        부동산 정책·지역 현황·수치 자료를 바탕으로 AI 보고서 작성용 프롬프트, 수정 프롬프트, 분량 조정 프롬프트를 생성합니다.
-      </p>
-    </div>
-  </header>
+<body class="bg-slate-100 text-slate-900">
+  <main class="min-h-screen p-6">
+    <section class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl p-8">
 
-  <main class="page">
-    <section class="column">
-      <article class="card input-card">
-        <div class="card-head">
-          <div class="section-title">
-            <span class="badge">01</span>
-            <div>
-              <h2>보고서 재료 입력</h2>
-              <p>보고서 주제, 분석 지역, 수치 자료, 사례, 참고 보고서 내용을 입력하세요.</p>
-            </div>
-          </div>
-        </div>
+<header class="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+  <div class="max-w-3xl">
+    <p class="site-kicker mb-2">
+      Prompt Conversion
+    </p>
 
-        <div class="card-body">
-          <form id="promptForm">
-            <div class="form-grid">
-              <div class="form-group">
-                <label for="reportTopic">보고서 주제</label>
-                <input
-                  type="text"
-                  id="reportTopic"
-                  placeholder="예: 원도심 주거환경 변화와 정책 대응 방향"
-                />
-              </div>
+    <h1 class="text-3xl md:text-4xl font-bold mb-4">
+      모두의 부동산 보고서
+    </h1>
 
-              <div class="form-group">
-                <label for="analysisRegion">분석 지역</label>
-                <input
-                  type="text"
-                  id="analysisRegion"
-                  placeholder="예: 인천광역시 중구, 특정 생활권 등"
-                />
-              </div>
+    <p class="text-slate-600 leading-relaxed">
+      과거 우수 보고서의 형식, 문체, 논리 구조를 AI가 분석하고,
+      사용자가 입력한 지역·자료·이슈·수치·사례를 그 형식에 맞게 재구성할 수 있도록
+      최적화된 AI 변환 프롬프트를 생성합니다.
+    </p>
+  </div>
 
-              <div class="form-group full">
-                <label for="referenceLinks">참고 자료 링크</label>
-                <textarea
-                  id="referenceLinks"
-                  rows="4"
-                  placeholder="통계청, 국토교통부, 지자체 보도자료, 연구보고서 링크 등을 입력하세요."
-                ></textarea>
-              </div>
+  <div class="site-logo-wrap flex md:justify-end">
+    <img
+      src="./assets/reb-logo.png"
+      alt="Korea Real Estate Board"
+      class="site-logo"
+    />
+  </div>
+</header>
 
-              <div class="form-group full">
-                <label for="keyIssues">핵심 이슈</label>
-                <textarea
-                  id="keyIssues"
-                  rows="5"
-                  placeholder="예: 전세가격 변동, 노후 주택 증가, 공실률 변화, 생활SOC 부족 등"
-                ></textarea>
-              </div>
+      <div class="grid lg:grid-cols-2 gap-6">
 
-              <div class="form-group full">
-                <label for="numericData">수치 자료</label>
-                <textarea
-                  id="numericData"
-                  rows="5"
-                  placeholder="예: 매매가격지수, 전세가격지수, 인구 변화, 주택 공급량, 공실률, 거래량 등"
-                ></textarea>
-              </div>
+        <!-- 입력 영역 -->
+        <div class="space-y-5">
 
-              <div class="form-group full">
-                <label for="majorCases">주요 사례</label>
-                <textarea
-                  id="majorCases"
-                  rows="5"
-                  placeholder="예: 타 지자체 정책 사례, 도시재생 사례, 주거 안정 사업 사례 등"
-                ></textarea>
-              </div>
-
-              <div class="form-group full">
-                <label for="pastReportFormat">과거 우수 보고서 참고 내용</label>
-                <textarea
-                  id="pastReportFormat"
-                  rows="6"
-                  placeholder="과거 우수 보고서의 목차, 문체, 수치 제시 방식, 결론 구조 등을 입력하세요."
-                ></textarea>
-              </div>
-            </div>
-
-            <div class="button-row">
-              <button type="button" id="generateBtn" class="btn btn-primary">
-                ② AI 프롬프트 생성
-              </button>
-              <button type="reset" class="btn btn-light">
-                입력값 초기화
-              </button>
-            </div>
-          </form>
-        </div>
-      </article>
-    </section>
-
-    <section class="column">
-      <article class="card guide-card">
-        <div class="card-head">
-          <div class="section-title">
-            <span class="badge">안내</span>
-            <div>
-              <h2>사용 방법</h2>
-              <p>아래 순서대로 진행하면 보고서 초안 작성 흐름이 정리됩니다.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <ol class="usage-list">
-            <li>
-              <strong>보고서 재료 입력</strong>
-              <span>왼쪽에 보고서 주제, 지역, 이슈, 수치, 사례, 참고 보고서 내용을 입력합니다.</span>
-            </li>
-            <li>
-              <strong>AI 프롬프트 생성</strong>
-              <span>입력값을 바탕으로 보고서 초안 작성용 프롬프트를 생성합니다.</span>
-            </li>
-            <li>
-              <strong>복사 후 AI 도구 열기</strong>
-              <span>ChatGPT 또는 Gemini를 열고 복사된 프롬프트를 붙여넣습니다.</span>
-            </li>
-            <li>
-              <strong>보고서 초안 보완</strong>
-              <span>AI가 작성한 초안을 수정 영역에 붙여넣고 보완 지시문을 생성합니다.</span>
-            </li>
-            <li>
-              <strong>분량 조정</strong>
-              <span>보고서 초안을 붙여넣고 목표 분량을 입력해 글자 수 조정 프롬프트를 생성합니다.</span>
-            </li>
-          </ol>
-
-          <p class="notice">
-            입력한 내용은 서버나 데이터베이스에 저장되지 않고, 사용자의 브라우저 안에서만 처리됩니다.
-          </p>
-        </div>
-      </article>
-
-      <article class="card prompt-card">
-        <div class="card-head row">
-          <div class="section-title">
-            <span class="badge green">03</span>
-            <div>
-              <h2>AI 보고서 작성용 프롬프트</h2>
-              <p>생성된 프롬프트를 복사해 AI 도구에 붙여넣으세요.</p>
-            </div>
-          </div>
-
-          <div class="prompt-actions">
-            <button type="button" id="copyPromptBtn" class="btn btn-copy">
-              프롬프트 복사
-            </button>
-            <button type="button" id="openChatGPTBtn" class="btn btn-chatgpt">
-              복사 후 ChatGPT 열기
-            </button>
-            <button type="button" id="openGeminiBtn" class="btn btn-gemini">
-              복사 후 Gemini 열기
-            </button>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <textarea
-            id="resultPrompt"
-            class="result-box"
-            rows="12"
-            readonly
-            placeholder="왼쪽에서 보고서 재료를 입력한 뒤 ‘AI 프롬프트 생성’ 버튼을 누르세요."
-          ></textarea>
-          <p id="promptMessage" class="message" aria-live="polite"></p>
-        </div>
-      </article>
-
-      <article class="card revision-card">
-        <div class="card-head">
-          <div class="section-title">
-            <span class="badge gold">04</span>
-            <div>
-              <h2>보고서 초안 수정 영역</h2>
-              <p>AI가 작성한 초안을 붙여넣고 수정 요청을 생성하세요.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <div class="form-group">
-            <label for="draftText">AI가 작성한 보고서 초안</label>
-            <textarea
-              id="draftText"
-              rows="7"
-              placeholder="AI가 작성한 보고서 초안을 여기에 붙여넣으세요."
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="revisionRequest">수정 요청 사항</label>
-            <textarea
-              id="revisionRequest"
-              rows="4"
-              placeholder="예: 문체를 더 공공기관 보고서답게 수정, 수치 해석 보완, 결론 강화 등"
-            ></textarea>
-          </div>
-
-          <div class="button-row">
-            <button type="button" id="makeRevisionBtn" class="btn btn-revision">
-              수정 프롬프트 생성
-            </button>
-            <button type="button" id="copyRevisionBtn" class="btn btn-copy">
-              수정 프롬프트 복사
-            </button>
-          </div>
-
-          <textarea
-            id="revisionPrompt"
-            class="result-box small"
-            rows="8"
-            readonly
-            placeholder="수정 프롬프트 생성 버튼을 누르면 결과가 표시됩니다."
-          ></textarea>
-
-          <p id="revisionMessage" class="message" aria-live="polite"></p>
-        </div>
-      </article>
-
-      <article class="card length-card">
-        <div class="card-head">
-          <div class="section-title">
-            <span class="badge purple">05</span>
-            <div>
-              <h2>보고서 분량 조정</h2>
-              <p>AI가 생성한 보고서 초안을 목표 글자 수나 비율에 맞게 조정하는 프롬프트를 생성합니다.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card-body">
-          <div class="form-group">
-            <label for="lengthDraftText">AI가 생성한 보고서 초안</label>
-            <textarea
-              id="lengthDraftText"
-              rows="8"
-              placeholder="분량을 조정할 보고서 초안을 여기에 붙여넣으세요."
-            ></textarea>
-          </div>
-
-          <div class="count-panel">
-            <div>
-              <strong>공백 포함</strong>
-              <span id="countWithSpaces">0자</span>
-            </div>
-            <div>
-              <strong>공백 제외</strong>
-              <span id="countWithoutSpaces">0자</span>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="targetLength">목표 분량</label>
+          <div>
+            <label class="block font-semibold mb-2">1. 보고서 주제 / 분석 대상</label>
             <input
+              id="subjectInput"
               type="text"
-              id="targetLength"
-              placeholder="예: 150%, 50%, 1/3, 1170자"
+              class="w-full border rounded-xl p-3"
+              placeholder="예: 경기 남양주시 부동산 시장 동향 / 상가 임대동향 / 토지 거래 동향 / 개발사업 영향 분석"
             />
           </div>
 
-          <div class="button-row">
-            <button type="button" id="makeLengthPromptBtn" class="btn btn-length">
-              글자 수 조정 프롬프트 생성 및 복사
+          <div>
+            <label class="block font-semibold mb-2">2. 지역 또는 분석 범위</label>
+            <input
+              id="regionInput"
+              type="text"
+              class="w-full border rounded-xl p-3"
+              placeholder="예: 경기 남양주시 / 인천 미추홀구 / ○○역세권 / ○○산업단지 인근"
+            />
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block font-semibold">3. 참고 자료 링크</label>
+              <span class="text-xs text-slate-500">최대 5개</span>
+            </div>
+
+            <div id="sourceLinksContainer" class="space-y-2"></div>
+
+            <button
+              id="addSourceLinkBtn"
+              type="button"
+              class="mt-2 text-sm font-semibold text-blue-600 hover:text-blue-800 disabled:text-slate-300 disabled:cursor-not-allowed"
+            >
+              + 참고 자료 링크 추가
             </button>
           </div>
 
-          <textarea
-            id="lengthPrompt"
-            class="result-box small"
-            rows="8"
-            readonly
-            placeholder="글자 수 조정 프롬프트가 여기에 생성됩니다."
-          ></textarea>
+          <div>
+            <label class="block font-semibold mb-2">4. 핵심 이슈 / 현장 메모</label>
+            <textarea
+              id="issueInput"
+              class="w-full h-36 border rounded-xl p-3"
+              placeholder="예: 교통 호재, 개발사업, 매물 부족, 공실 증가, 임대료 변화, 토지거래 문의 증가, 상권 변화, 현장 탐문 내용 등을 자유롭게 입력"
+            ></textarea>
+          </div>
 
-          <p id="lengthMessage" class="message" aria-live="polite"></p>
+          <div>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-2">
+              <label class="block font-semibold">5. 수치 자료 / 변동 지표</label>
+
+              <div class="flex items-center gap-2">
+                <select
+                  id="trendDirectionSelect"
+                  class="border rounded-xl px-3 py-2 text-sm bg-white"
+                >
+                  <option value="보합">보합</option>
+                  <option value="상승">상승</option>
+                  <option value="급상승">급상승</option>
+                  <option value="하락">하락</option>
+                  <option value="급락">급락</option>
+                </select>
+
+                <span
+                  id="trendSignLabel"
+                  class="w-6 text-center font-bold text-slate-700"
+                >
+                  ±
+                </span>
+
+                <input
+                  id="trendRateInput"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  class="w-24 border rounded-xl px-3 py-2 text-sm"
+                  placeholder="0.23"
+                />
+
+                <span class="text-sm font-semibold text-slate-600">%</span>
+              </div>
+            </div>
+
+            <textarea
+              id="indicatorInput"
+              class="w-full h-28 border rounded-xl p-3"
+              placeholder="예: 거래량 25건→10건 / 매물량 7,903건→7,841건 / 임대료 3.3㎡당 12만 원→13만 원 / 공실률 8%→11%"
+            ></textarea>
+
+            <p
+              id="trendPreviewText"
+              class="mt-2 text-xs text-slate-500"
+            >
+              방향성 미입력: 보합 또는 별도 판단 필요
+            </p>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-2">6. 주요 사례 / 근거 자료</label>
+            <textarea
+              id="caseInput"
+              class="w-full h-32 border rounded-xl p-3"
+              placeholder="예: 아파트 실거래, 상가 임대료 사례, 토지 거래 사례, 공실 사례, 개발사업 사례, 현장 인터뷰 등을 입력"
+            ></textarea>
+          </div>
+
+          <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <label class="block font-bold text-indigo-800">
+                  7. 과거 보고서 참고 내용
+                </label>
+                <p class="text-xs text-indigo-600 mt-1">
+                  AI가 참고할 보고서의 목차, 문체, 문단 흐름, 결론 도출 방식을 붙여넣으세요.
+                </p>
+              </div>
+
+              <span class="text-xs text-indigo-500">
+                최대 3개
+              </span>
+            </div>
+
+            <div id="sampleReportsContainer" class="space-y-3"></div>
+
+            <button
+              id="addSampleReportBtn"
+              type="button"
+              class="mt-3 text-sm font-semibold text-indigo-700 hover:text-indigo-900 disabled:text-slate-300 disabled:cursor-not-allowed"
+            >
+              + 참고 보고서 추가
+            </button>
+          </div>
+
+          <!-- AI 실행 단계 -->
+          <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 space-y-3 mt-6">
+            <p class="font-bold text-blue-800">
+              AI 실행 단계
+            </p>
+
+            <p class="text-sm text-blue-900 leading-relaxed">
+              아래 버튼을 누르면 AI 변환 프롬프트가 화면에 표시되지 않고 자동으로 복사됩니다.
+              복사된 프롬프트를 ChatGPT 또는 Gemini에 붙여넣고 실행하세요.
+            </p>
+
+            <div class="grid md:grid-cols-3 gap-3">
+              <button
+                id="copyPromptOnlyBtn"
+                type="button"
+                class="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition text-sm"
+              >
+                프롬프트 복사
+              </button>
+
+              <button
+                id="openChatGptBtn"
+                type="button"
+                class="bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-black transition text-sm"
+              >
+                복사 후 ChatGPT 열기
+              </button>
+
+              <button
+                id="openGeminiBtn"
+                type="button"
+                class="bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition text-sm"
+              >
+                복사 후 Gemini 열기
+              </button>
+            </div>
+
+            <p
+              id="copyStatusMessage"
+              class="text-sm text-slate-600"
+            >
+              아직 프롬프트가 복사되지 않았습니다.
+            </p>
+          </div>
+
         </div>
-      </article>
+
+        <!-- 보고서 초안 수정 및 최종 보고서 복사 영역 -->
+        <div class="space-y-5">
+
+          <div class="bg-slate-50 border rounded-2xl p-5">
+            <p class="font-bold mb-2">
+              사용 방법
+            </p>
+
+            <ol class="list-decimal list-inside text-sm text-slate-600 leading-relaxed space-y-1">
+              <li>왼쪽 입력란에 보고서 재료를 입력합니다.</li>
+              <li>왼쪽 하단의 [복사 후 ChatGPT 열기] 또는 [복사 후 Gemini 열기]를 누릅니다.</li>
+              <li>열린 AI 채팅창에 붙여넣기 후 실행합니다.</li>
+              <li>AI가 생성한 보고서 초안을 아래 칸에 붙여넣습니다.</li>
+              <li>수치, 표현, 문장, 오탈자 등을 사람이 직접 수정합니다.</li>
+              <li>필요하면 [글자수 조정 AI 최종 조정]에서 분량 조정 프롬프트를 복사해 다시 AI에 실행합니다.</li>
+              <li>최종 수정이 끝난 보고서를 [최종 보고서 붙여넣기] 칸에 붙여넣습니다.</li>
+              <li>[최종 보고서 복사]를 누르면 최종본 전체가 복사됩니다.</li>
+            </ol>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block font-semibold">보고서 초안 붙여넣기 및 수기 수정</label>
+
+              <div class="text-xs text-slate-500">
+                <span id="draftCountWithSpace">띄어쓰기 포함 0자</span>
+                <span class="mx-1">/</span>
+                <span id="draftCountWithoutSpace">띄어쓰기 제외 0자</span>
+              </div>
+            </div>
+
+            <textarea
+              id="finalReportInput"
+              class="w-full h-56 border rounded-xl p-4 text-sm leading-relaxed"
+              placeholder="ChatGPT 또는 Gemini에서 생성된 보고서 초안을 여기에 붙여넣은 뒤, 수치·표현·문장 등을 직접 수정하세요."
+            ></textarea>
+
+            <!-- 글자수 조정 AI 최종 조정 영역 -->
+            <div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 mt-4 space-y-4">
+              <div>
+                <p class="font-bold text-amber-800">
+                  글자수 조정 AI 최종 조정
+                </p>
+
+                <p class="text-sm text-amber-900 leading-relaxed mt-1">
+                  보고서 초안을 기준으로 목표 글자수에 맞춰 줄이거나 늘리는 편집 프롬프트를 생성합니다.
+                  형식, 문체, 숫자, 핵심 사실은 유지하도록 설계되어 있습니다.
+                </p>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-2">목표 분량</label>
+                  <input
+                    id="targetLengthInput"
+                    type="text"
+                    class="w-full border rounded-xl p-3"
+                    placeholder="예: 1170자 / 80% / 1.2배"
+                  />
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold mb-2">글자 수 기준</label>
+                  <select
+                    id="lengthBasisSelect"
+                    class="w-full border rounded-xl p-3 bg-white"
+                  >
+                    <option value="공백 포함">공백 포함</option>
+                    <option value="공백 제외">공백 제외</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid md:grid-cols-3 gap-3">
+                <button
+                  id="copyAdjustPromptBtn"
+                  type="button"
+                  class="bg-amber-600 text-white font-bold py-3 rounded-xl hover:bg-amber-700 transition text-sm"
+                >
+                  조정 프롬프트 복사
+                </button>
+
+                <button
+                  id="openAdjustChatGptBtn"
+                  type="button"
+                  class="bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-black transition text-sm"
+                >
+                  복사 후 ChatGPT 열기
+                </button>
+
+                <button
+                  id="openAdjustGeminiBtn"
+                  type="button"
+                  class="bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition text-sm"
+                >
+                  복사 후 Gemini 열기
+                </button>
+              </div>
+
+              <p
+                id="adjustPromptStatusMessage"
+                class="text-sm text-slate-600"
+              >
+                아직 글자수 조정 프롬프트가 복사되지 않았습니다.
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block font-semibold">최종 보고서 붙여넣기</label>
+
+              <div class="text-xs text-slate-500">
+                <span id="finalCountWithSpace">띄어쓰기 포함 0자</span>
+                <span class="mx-1">/</span>
+                <span id="finalCountWithoutSpace">띄어쓰기 제외 0자</span>
+              </div>
+            </div>
+
+            <textarea
+              id="finalReportBox"
+              class="w-full h-[500px] bg-white border rounded-xl p-5 whitespace-pre-line text-sm leading-relaxed overflow-y-auto"
+              placeholder="글자수 조정 또는 최종 수정을 마친 보고서를 여기에 붙여넣으세요. 이후 [최종 보고서 복사]를 누르면 이 칸의 전체 내용이 복사됩니다."
+            ></textarea>
+
+            <div class="mt-4">
+              <button
+                id="copyFinalReportBtn"
+                type="button"
+                class="w-full bg-amber-500 text-white font-bold py-3 rounded-xl hover:bg-amber-600 transition shadow-sm"
+              >
+                최종 보고서 복사
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <p>모두의 부동산 보고서 · 정적 웹페이지 기반 내부 업무 보조 도구</p>
-  </footer>
-
   <script>
-    const generateBtn = document.getElementById("generateBtn");
-    const copyPromptBtn = document.getElementById("copyPromptBtn");
-    const openChatGPTBtn = document.getElementById("openChatGPTBtn");
+    const MAX_SOURCE_LINKS = 5;
+    const MAX_SAMPLE_REPORTS = 3;
+
+    const CHATGPT_URL = "https://chatgpt.com/";
+    const GEMINI_URL = "https://gemini.google.com/app";
+
+    const sourceLinksContainer = document.getElementById("sourceLinksContainer");
+    const sampleReportsContainer = document.getElementById("sampleReportsContainer");
+
+    const addSourceLinkBtn = document.getElementById("addSourceLinkBtn");
+    const addSampleReportBtn = document.getElementById("addSampleReportBtn");
+
+    const copyPromptOnlyBtn = document.getElementById("copyPromptOnlyBtn");
+    const openChatGptBtn = document.getElementById("openChatGptBtn");
     const openGeminiBtn = document.getElementById("openGeminiBtn");
-    const makeRevisionBtn = document.getElementById("makeRevisionBtn");
-    const copyRevisionBtn = document.getElementById("copyRevisionBtn");
-    const makeLengthPromptBtn = document.getElementById("makeLengthPromptBtn");
 
-    const resultPrompt = document.getElementById("resultPrompt");
-    const revisionPrompt = document.getElementById("revisionPrompt");
-    const lengthPrompt = document.getElementById("lengthPrompt");
+    const copyStatusMessage = document.getElementById("copyStatusMessage");
 
-    const promptMessage = document.getElementById("promptMessage");
-    const revisionMessage = document.getElementById("revisionMessage");
-    const lengthMessage = document.getElementById("lengthMessage");
+    const finalReportInput = document.getElementById("finalReportInput");
+    const finalReportBox = document.getElementById("finalReportBox");
+    const copyFinalReportBtn = document.getElementById("copyFinalReportBtn");
 
-    const lengthDraftText = document.getElementById("lengthDraftText");
-    const targetLength = document.getElementById("targetLength");
-    const countWithSpaces = document.getElementById("countWithSpaces");
-    const countWithoutSpaces = document.getElementById("countWithoutSpaces");
+    const draftCountWithSpace = document.getElementById("draftCountWithSpace");
+    const draftCountWithoutSpace = document.getElementById("draftCountWithoutSpace");
 
-    function getValue(id) {
-      const element = document.getElementById(id);
-      const value = element ? element.value.trim() : "";
-      return value || "미입력";
+    const finalCountWithSpace = document.getElementById("finalCountWithSpace");
+    const finalCountWithoutSpace = document.getElementById("finalCountWithoutSpace");
+
+    const targetLengthInput = document.getElementById("targetLengthInput");
+    const lengthBasisSelect = document.getElementById("lengthBasisSelect");
+
+    const copyAdjustPromptBtn = document.getElementById("copyAdjustPromptBtn");
+    const openAdjustChatGptBtn = document.getElementById("openAdjustChatGptBtn");
+    const openAdjustGeminiBtn = document.getElementById("openAdjustGeminiBtn");
+
+    const adjustPromptStatusMessage = document.getElementById("adjustPromptStatusMessage");
+
+    const trendDirectionSelect = document.getElementById("trendDirectionSelect");
+    const trendRateInput = document.getElementById("trendRateInput");
+    const trendSignLabel = document.getElementById("trendSignLabel");
+    const trendPreviewText = document.getElementById("trendPreviewText");
+
+    let latestPrompt = "";
+
+    function createSourceLinkInput(index) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "source-link-row flex gap-2 items-start";
+
+      wrapper.innerHTML = `
+        <input
+          type="text"
+          class="source-link-input flex-1 border rounded-xl p-3"
+          placeholder="참고 자료 링크 ${index} 입력"
+        />
+
+        <button
+          type="button"
+          class="remove-source-link-btn shrink-0 px-3 py-3 rounded-xl border text-sm font-semibold text-red-600 hover:bg-red-50"
+        >
+          삭제
+        </button>
+      `;
+
+      return wrapper;
     }
 
-    function createReportPrompt() {
-      const reportTopic = getValue("reportTopic");
-      const analysisRegion = getValue("analysisRegion");
-      const referenceLinks = getValue("referenceLinks");
-      const keyIssues = getValue("keyIssues");
-      const numericData = getValue("numericData");
-      const majorCases = getValue("majorCases");
-      const pastReportFormat = getValue("pastReportFormat");
+    function createSampleReportInput(index) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "sample-report-row bg-white border border-indigo-200 rounded-xl p-4 space-y-2";
 
-      return `당신은 공공기관 부동산 정책보고서, 지역 현황 보고서, 검토보고서 작성에 능숙한 전문 보고서 작성 보조 AI입니다.
-아래 입력 자료를 바탕으로 사용자가 바로 보고서 초안으로 활용할 수 있는 본문 중심의 보고서를 작성해주세요.
+      wrapper.innerHTML = `
+        <div class="flex items-center justify-between">
+          <p class="sample-report-title text-sm font-bold text-indigo-700">
+            참고 보고서 ${index}
+          </p>
 
-[중요 작업 원칙]
-1. 과거 우수 보고서 참고 내용은 문장을 그대로 복사하지 말고 제목 구조, 목차 구성, 문체, 문단 흐름, 수치 제시 방식, 결론 도출 방식만 분석하여 참고해주세요.
-2. 새 보고서의 주제, 지역, 참고 자료, 핵심 이슈, 수치 자료, 주요 사례를 참고 보고서의 형식과 논리 구조에 맞게 재구성해주세요.
-3. 참고 보고서와 유사한 문장, 표현, 문단을 그대로 재사용하지 마세요.
-4. 자료가 부족하거나 근거가 불명확한 내용은 임의로 만들지 말고 반드시 "추가 확인 필요"라고 표시해주세요.
-5. 최종 출력은 설명문이나 작성 과정이 아니라 실제 보고서 초안으로 바로 활용할 수 있는 본문 중심으로 작성해주세요.
+          <button
+            type="button"
+            class="remove-sample-report-btn px-3 py-1 rounded-lg border border-red-200 text-sm font-semibold text-red-600 hover:bg-red-50"
+          >
+            삭제
+          </button>
+        </div>
 
-────────────────────────
-[1. 보고서 주제]
-${reportTopic}
+        <textarea
+          class="sample-report-input w-full h-40 border border-indigo-100 bg-indigo-50/40 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          placeholder="참고 보고서 ${index} 내용을 입력하세요. 목차, 문체, 문단 흐름, 수치 제시 방식, 사례 정리 방식, 결론 도출 방식이 드러나도록 붙여넣으면 좋습니다."
+        ></textarea>
+      `;
 
-[2. 분석 지역]
-${analysisRegion}
+      return wrapper;
+    }
 
-[3. 참고 자료 및 링크]
-${referenceLinks}
+    function addSourceLinkInput() {
+      const currentCount = sourceLinksContainer.querySelectorAll(".source-link-row").length;
 
-[4. 핵심 이슈]
-${keyIssues}
+      if (currentCount >= MAX_SOURCE_LINKS) {
+        alert("참고 자료 링크는 최대 5개까지 입력할 수 있습니다.");
+        return;
+      }
 
-[5. 수치 자료]
-${numericData}
+      sourceLinksContainer.appendChild(createSourceLinkInput(currentCount + 1));
+      refreshDynamicInputs();
+    }
 
-[6. 주요 사례]
-${majorCases}
+    function addSampleReportInput() {
+      const currentCount = sampleReportsContainer.querySelectorAll(".sample-report-row").length;
 
-[7. 과거 우수 보고서 참고 내용]
-${pastReportFormat}
-────────────────────────
+      if (currentCount >= MAX_SAMPLE_REPORTS) {
+        alert("참고 보고서는 최대 3개까지 입력할 수 있습니다.");
+        return;
+      }
 
-[1단계. 과거 우수 보고서 형식 분석]
-과거 우수 보고서 참고 내용을 내부적으로 분석하되, 분석 결과를 장황하게 따로 출력하지 말고 최종 보고서 구조에 반영해주세요.
+      sampleReportsContainer.appendChild(createSampleReportInput(currentCount + 1));
+      refreshDynamicInputs();
+    }
 
-분석 항목:
-- 제목 구조
-- 목차 구성
-- 문체와 표현 방식
-- 문단 흐름
-- 수치 제시 방식
-- 결론 도출 방식
+    function removeSourceLinkInput(button) {
+      const rows = sourceLinksContainer.querySelectorAll(".source-link-row");
 
-[2단계. 새 입력 자료 재구성]
-- 보고서 주제는 전체 문제의식과 제목에 반영
-- 분석 지역은 현황 분석, 지역 특성, 정책 적용 가능성에 반영
-- 참고 자료와 링크는 근거 자료로 활용
-- 핵심 이슈는 문제점 및 쟁점 분석에 반영
-- 수치 자료는 현황 분석과 정책적 시사점 도출에 반영
-- 주요 사례는 비교 사례 또는 벤치마킹 사례로 반영
-- 과거 우수 보고서 참고 내용은 형식과 논리 전개 방식에만 반영
+      if (rows.length <= 1) {
+        alert("참고 자료 링크 입력칸은 최소 1개가 필요합니다.");
+        return;
+      }
 
-[3단계. 수치 자료 표현 방식]
-수치 자료는 단순 나열하지 말고 보고서 문장 안에서 자연스럽게 해석해주세요.
-- 증가, 상승, 확대, 개선, 감소, 하락, 축소, 악화, 보합 등 방향성을 판단할 수 있으면 반영
-- 두 개 이상의 시점이나 비교 대상이 있으면 변화 추세 해석
-- 단일 수치만 있는 경우에는 무리하게 추세를 만들지 말고 현재 수준 중심으로 설명
-- 방향성 판단 근거가 부족하면 "방향성 추가 확인 필요"라고 표시
-- 출처가 명확하지 않은 수치는 "제공 자료 기준"이라고 표시
-- 필요한 경우 표로 정리하되, 표 이후에는 반드시 정책적 의미를 문장으로 해석
+      button.closest(".source-link-row").remove();
+      refreshDynamicInputs();
+    }
 
-[4단계. 주요 사례 반영 방식]
-주요 사례는 단순 소개가 아니라 다음 방식으로 정리해주세요.
-- 사례의 핵심 내용 요약
-- 분석 지역에 적용 가능한 요소 도출
-- 그대로 적용하기 어려운 한계 제시
-- 해당 사례가 보고서 주제에 주는 정책적 시사점 정리
+    function removeSampleReportInput(button) {
+      const rows = sampleReportsContainer.querySelectorAll(".sample-report-row");
 
-[5단계. 작성 스타일]
-- 공공기관 내부 보고서에 적합한 공식적이고 객관적인 문체
-- 과장된 표현보다 근거 중심의 표현 사용
-- 문단마다 핵심 메시지가 분명하게 드러나도록 작성
-- 개조식과 서술식을 적절히 혼합
-- 정책 담당자가 검토하기 쉬운 구조로 작성
-- 불확실한 내용은 단정하지 않고 "추가 확인 필요", "검토 필요"로 표시
+      if (rows.length <= 1) {
+        alert("참고 보고서 입력칸은 최소 1개가 필요합니다.");
+        return;
+      }
 
-[6단계. 최종 보고서 출력 형식]
-아래 형식을 기본으로 하되, 과거 우수 보고서의 구조가 더 적합하면 그 형식에 맞게 조정해주세요.
+      button.closest(".sample-report-row").remove();
+      refreshDynamicInputs();
+    }
+
+    function refreshDynamicInputs() {
+      const sourceRows = sourceLinksContainer.querySelectorAll(".source-link-row");
+      const sampleRows = sampleReportsContainer.querySelectorAll(".sample-report-row");
+
+      sourceRows.forEach((row, index) => {
+        const input = row.querySelector(".source-link-input");
+        const removeBtn = row.querySelector(".remove-source-link-btn");
+
+        input.placeholder = `참고 자료 링크 ${index + 1} 입력`;
+
+        if (sourceRows.length === 1) {
+          removeBtn.classList.add("hidden");
+        } else {
+          removeBtn.classList.remove("hidden");
+        }
+      });
+
+      sampleRows.forEach((row, index) => {
+        const title = row.querySelector(".sample-report-title");
+        const textarea = row.querySelector(".sample-report-input");
+        const removeBtn = row.querySelector(".remove-sample-report-btn");
+
+        title.textContent = `참고 보고서 ${index + 1}`;
+        textarea.placeholder = `참고 보고서 ${index + 1} 내용을 입력하세요. 목차, 문체, 문단 흐름, 수치 제시 방식, 사례 정리 방식, 결론 도출 방식이 드러나도록 붙여넣으면 좋습니다.`;
+
+        if (sampleRows.length === 1) {
+          removeBtn.classList.add("hidden");
+        } else {
+          removeBtn.classList.remove("hidden");
+        }
+      });
+
+      addSourceLinkBtn.disabled = sourceRows.length >= MAX_SOURCE_LINKS;
+      addSampleReportBtn.disabled = sampleRows.length >= MAX_SAMPLE_REPORTS;
+    }
+
+    function collectValues(selector) {
+      return Array.from(document.querySelectorAll(selector))
+        .map((element) => element.value.trim())
+        .filter((value) => value.length > 0);
+    }
+
+    function formatNumberedList(items, emptyMessage) {
+      if (!items.length) {
+        return emptyMessage;
+      }
+
+      return items
+        .map((item, index) => `${index + 1}. ${item}`)
+        .join("\n");
+    }
+
+    function getTrendSign(direction) {
+      if (direction === "상승" || direction === "급상승") {
+        return "+";
+      }
+
+      if (direction === "하락" || direction === "급락") {
+        return "-";
+      }
+
+      return "±";
+    }
+
+    function getTrendExpression(direction, rate) {
+      const sign = getTrendSign(direction);
+
+      if (!rate) {
+        if (direction === "보합") {
+          return "보합(0.00%) 또는 제한적 변동";
+        }
+
+        return `${direction}(변동률 별도 입력 없음)`;
+      }
+
+      const numberRate = Number(rate);
+      const formattedRate = Number.isNaN(numberRate)
+        ? rate
+        : numberRate.toFixed(2);
+
+      if (direction === "보합") {
+        return `보합(${formattedRate}%)`;
+      }
+
+      return `${direction}(${sign}${formattedRate}%)`;
+    }
+
+    function getTrendReportPhrase(direction, rate) {
+      const expression = getTrendExpression(direction, rate);
+
+      if (direction === "급상승") {
+        return `${expression}으로 나타나 상승폭이 크게 확대된 흐름으로 정리할 수 있음.`;
+      }
+
+      if (direction === "상승") {
+        return `${expression}으로 나타나 상승세 또는 상승폭 확대 여부를 중심으로 검토할 필요가 있음.`;
+      }
+
+      if (direction === "보합") {
+        return `${expression}으로 나타나 가격 흐름은 보합권 또는 제한적 변동 수준으로 판단할 수 있음.`;
+      }
+
+      if (direction === "하락") {
+        return `${expression}으로 나타나 하락세 또는 하락폭 확대·축소 여부를 중심으로 검토할 필요가 있음.`;
+      }
+
+      if (direction === "급락") {
+        return `${expression}으로 나타나 하락폭이 크게 확대된 흐름으로 정리할 수 있음.`;
+      }
+
+      return expression;
+    }
+
+    function updateTrendPreview() {
+      const direction = trendDirectionSelect.value;
+      const rate = trendRateInput.value.trim();
+
+      const sign = getTrendSign(direction);
+      trendSignLabel.textContent = sign;
+
+      if (direction === "상승" || direction === "급상승") {
+        trendSignLabel.className = "w-6 text-center font-bold text-red-600";
+      } else if (direction === "하락" || direction === "급락") {
+        trendSignLabel.className = "w-6 text-center font-bold text-blue-600";
+      } else {
+        trendSignLabel.className = "w-6 text-center font-bold text-slate-700";
+      }
+
+      trendPreviewText.textContent = getTrendReportPhrase(direction, rate);
+    }
+
+    function buildOptimizedPrompt(data) {
+      const sourceLinksBlock = formatNumberedList(data.sourceLinks, "입력 없음");
+
+      const sampleReportBlock = data.sampleReports.length
+        ? data.sampleReports
+            .map((report, index) => `[참고 보고서 ${index + 1}]
+${report}`)
+            .join("\n\n")
+        : "입력 없음";
+
+      return `
+[범용 보고서 형식 분석 및 재구성 프롬프트]
+
+당신은 보고서 작성 전문가이자, 과거 보고서의 형식과 논리 구조를 분석하여 새로운 보고서로 재구성하는 AI 업무 어시스턴트입니다.
+
+당신의 임무는 특정 보고서 양식을 미리 정해두는 것이 아닙니다.
+주택 매매 보고서, 전월세 동향 보고서, 토지 거래 보고서, 상가 임대동향 보고서, 개발사업 영향 보고서, 시장동향 보고서 등
+어떤 유형의 보고서가 들어와도 먼저 참고 보고서의 형식을 분석한 뒤,
+입력된 새 자료를 그 형식에 맞게 배치하여 새로운 보고서를 작성해야 합니다.
+
+중요한 비유로 설명하면,
+참고 보고서는 '요리법'이고,
+입력 자료는 '재료'입니다.
+당신은 요리법을 먼저 분석한 뒤, 새 재료를 가장 적절한 순서와 방식으로 조리하여 완성도 높은 새 보고서를 만들어야 합니다.
+
+────────────────────
+1. 입력 자료
+────────────────────
+
+[보고서 주제 / 분석 대상]
+${data.subject || "입력 없음"}
+
+[지역 또는 분석 범위]
+${data.region || "입력 없음"}
+
+[참고 자료 링크]
+${sourceLinksBlock}
+
+[핵심 이슈 / 현장 메모]
+${data.issue || "입력 없음"}
+
+[수치 자료 / 변동 지표]
+${data.indicator || "입력 없음"}
+
+[시장 방향성 / 변동률]
+${data.trendExpression || "입력 없음"}
+
+[보고서 표현 참고]
+${data.trendReportPhrase || "입력 없음"}
+
+[주요 사례 / 근거 자료]
+${data.caseData || "입력 없음"}
+
+[과거 보고서 참고 내용]
+${sampleReportBlock}
+
+────────────────────
+2. 참고 보고서 형식 분석 지시
+────────────────────
+
+과거 보고서 참고 내용이 입력된 경우, 먼저 아래 항목을 분석하세요.
+
+1. 보고서의 전체 제목 구조
+2. 대목차 구조
+3. 문단 작성 방식
+4. 수치 제시 방식
+5. 사례 제시 방식
+6. 결론 도출 방식
+7. 문체 분석
+
+참고 보고서의 문장은 그대로 복사하지 말고, 형식과 논리만 차용하세요.
+
+────────────────────
+3. 형식 재구성 지시
+────────────────────
+
+참고 보고서가 2개 이상 입력된 경우 다음 기준으로 새 형식을 만드세요.
+
+1. 공통적으로 반복되는 우수한 구조는 유지합니다.
+2. 한 보고서에만 있더라도 논리적으로 유용한 구조는 반영합니다.
+3. 중복되거나 흐름을 방해하는 목차는 통합합니다.
+4. 입력 자료와 맞지 않는 목차는 억지로 유지하지 않습니다.
+5. 새 보고서 주제에 꼭 필요한 목차가 없다면 보완 목차를 추가합니다.
+6. 최종 형식은 참고 보고서의 장점을 혼합한 새로운 보고서 구조여야 합니다.
+
+중요:
+- 보고서 유형을 사전에 주택 매매, 전월세, 상가, 토지 등으로 고정하지 마세요.
+- 입력 자료와 참고 보고서의 형식을 보고 스스로 적합한 보고서 유형과 목차를 추론하세요.
+
+────────────────────
+4. 입력 자료 배치 지시
+────────────────────
+
+새 보고서 작성 시 입력 자료를 다음 기준으로 배치하세요.
+
+1. 보고서 주제 / 분석 대상
+   - 제목 또는 첫 문단에 반영합니다.
+
+2. 지역 또는 분석 범위
+   - 지역 개황, 분석 범위, 시장 배경 등 적절한 위치에 반영합니다.
+
+3. 참고 자료 링크
+   - 기사 내용이 제공되지 않은 경우 링크 내용을 임의로 단정하지 않습니다.
+   - “관련 자료로 제시됨”, “추가 확인 필요” 등으로 신중하게 활용합니다.
+
+4. 핵심 이슈 / 현장 메모
+   - 참고 보고서의 주요 이슈, 시장동향, 현장 탐문, 분석 배경 항목에 배치합니다.
+
+5. 수치 자료 / 변동 지표
+   - 변동률, 거래량, 매물량, 임대료, 공실률, 가격 변화 등 수치가 필요한 문단에 배치합니다.
+   - 변화 전후가 있는 경우 화살표 또는 비교 문장으로 표현합니다.
+   - 시장 방향성과 변동률은 보고서 본문에서 “상승(+0.23%)”, “하락(-0.23%)”, “급상승(+0.50%)”, “급락(-0.50%)”, “보합(0.00%)”과 같은 형식으로 표기합니다.
+   - 대괄호 형식인 “[상승] [+0.23]%”처럼 쓰지 말고, 반드시 “상승(+0.23%)” 형식으로 자연스럽게 문장 안에 반영합니다.
+   - 시장 방향성이 상승 또는 급상승이면 “상승세”, “상승폭 확대”, “강세” 등의 표현을 사용합니다.
+   - 시장 방향성이 하락 또는 급락이면 “하락세”, “하락폭 확대”, “약세” 등의 표현을 사용합니다.
+   - 시장 방향성이 보합이면 “보합”, “강보합”, “약보합”, “제한적 변동” 중 입력 자료에 맞는 표현을 사용합니다.
+   - 단, 급상승·급락 표현은 수치와 현장 메모가 이를 뒷받침할 때만 사용합니다.
+
+6. 주요 사례 / 근거 자료
+   - 참고 보고서의 사례 제시 방식에 맞춰 본문 또는 별도 하위 항목에 배치합니다.
+   - 사례가 부족하면 임의로 만들지 말고 “추가 확인 필요”로 표시합니다.
+
+────────────────────
+5. 최종 출력 지시
+────────────────────
+
+최종 결과물은 아래 순서로 작성하세요.
 
 1. 보고서 제목
-2. 작성 배경 및 필요성
-3. 지역 현황 및 부동산 관련 동향
-4. 핵심 이슈 및 문제점
-5. 수치 자료 기반 시사점
-6. 주요 사례 검토
-7. 정책적 시사점
-8. 추진 방향 및 개선 방안
-9. 기대 효과
-10. 결론
-11. 추가 확인 필요 자료
+2. 참고 보고서에서 추출한 형식을 반영한 본문
+3. 입력 자료를 바탕으로 한 분석 내용
+4. 주요 사례 또는 근거 자료 정리
+5. 종합 판단 또는 향후 검토사항
+6. 자료 부족 시 추가 확인 필요사항
 
-[금지 사항]
-- 참고 보고서 문장 그대로 복사 금지
-- 제공되지 않은 수치나 사례 임의 생성 금지
-- 근거 없는 정책 효과 단정 금지
-- 자료 부족 부분을 추측으로 채우기 금지
+단, 위 순서를 반드시 고정하지 말고,
+참고 보고서의 형식과 입력 자료의 성격에 맞게 자연스럽게 조정하세요.
 
-위 기준에 따라 바로 활용 가능한 보고서 초안을 작성해주세요.`;
+중요:
+- 최종 답변에는 프롬프트 분석 과정 설명을 길게 쓰지 마세요.
+- 사용자가 바로 보고서 초안으로 활용할 수 있도록 보고서 본문만 중심으로 작성하세요.
+
+────────────────────
+6. 작성 원칙
+────────────────────
+
+- 문체는 참고 보고서의 톤을 따릅니다.
+- 문장은 공공기관 또는 회사 내부 보고서에 어울리는 객관적 문장으로 작성합니다.
+- 확인된 사실, 현장 탐문, 분석 판단을 구분합니다.
+- 자료가 부족한 부분은 추정하지 말고 “추가 확인 필요”로 표시합니다.
+- 입력되지 않은 사례나 수치를 임의로 만들지 않습니다.
+- 참고 보고서의 문장을 그대로 복사하지 않고, 형식과 논리만 차용합니다.
+- 최종 보고서는 바로 초안으로 활용 가능한 수준으로 작성합니다.
+`;
     }
 
-    function createRevisionPrompt() {
-      const draftText = getValue("draftText");
-      const revisionRequest = getValue("revisionRequest");
-
-      return `당신은 공공기관 내부 보고서의 품질을 개선하는 전문 검토자입니다.
-아래 보고서 초안을 검토하고 수정 요청 사항을 반영하여 더 완성도 높은 보고서로 다듬어주세요.
-
-[1. 보고서 초안]
-${draftText}
-
-[2. 수정 요청 사항]
-${revisionRequest}
-
-[3. 수정 기준]
-- 공공기관 내부 보고서에 적합한 공식적이고 간결한 문체로 수정
-- 문장이 장황한 부분은 간결하게 정리
-- 근거가 부족한 표현은 보완하거나 "추가 확인 필요"로 표시
-- 핵심 이슈, 정책적 시사점, 개선 방안이 잘 드러나도록 구조 정리
-- 필요하면 제목, 소제목, 표, 목록 형태 활용
-- 과장된 표현이나 단정적인 표현 지양
-- 담당자가 바로 검토할 수 있도록 보고서 형식으로 정리
-
-[4. 결과물 형식]
-1. 수정된 보고서 초안
-2. 주요 수정 사항 요약
-3. 추가 보완이 필요한 자료
-4. 검토자가 확인해야 할 쟁점`;
+    function getInputData() {
+      return {
+        subject: document.getElementById("subjectInput").value.trim(),
+        region: document.getElementById("regionInput").value.trim(),
+        sourceLinks: collectValues(".source-link-input"),
+        issue: document.getElementById("issueInput").value.trim(),
+        indicator: document.getElementById("indicatorInput").value.trim(),
+        trendDirection: trendDirectionSelect.value,
+        trendRate: trendRateInput.value.trim(),
+        trendExpression: getTrendExpression(trendDirectionSelect.value, trendRateInput.value.trim()),
+        trendReportPhrase: getTrendReportPhrase(trendDirectionSelect.value, trendRateInput.value.trim()),
+        caseData: document.getElementById("caseInput").value.trim(),
+        sampleReports: collectValues(".sample-report-input")
+      };
     }
 
-    function updateLengthCount() {
-      const text = lengthDraftText ? lengthDraftText.value : "";
-      const withSpaces = text.length;
-      const withoutSpaces = text.replace(/\s/g, "").length;
-
-      countWithSpaces.textContent = `${withSpaces.toLocaleString()}자`;
-      countWithoutSpaces.textContent = `${withoutSpaces.toLocaleString()}자`;
-    }
-
-    function createLengthPrompt() {
-      const draft = lengthDraftText.value.trim();
-      const target = targetLength.value.trim();
-
-      const withSpaces = draft.length;
-      const withoutSpaces = draft.replace(/\s/g, "").length;
-
-      return `당신은 공공기관 보고서 문장을 목표 분량에 맞게 조정하는 전문 편집자입니다.
-아래 보고서 초안을 목표 분량에 맞게 축약하거나 확장해주세요.
-
-[1. 현재 글자 수]
-- 공백 포함 기준: ${withSpaces.toLocaleString()}자
-- 공백 제외 기준: ${withoutSpaces.toLocaleString()}자
-
-[2. 목표 분량]
-${target}
-
-목표 분량 해석 기준:
-- "150%"처럼 입력된 경우 현재 분량의 150% 수준으로 확장
-- "50%"처럼 입력된 경우 현재 분량의 50% 수준으로 축약
-- "1/3"처럼 입력된 경우 현재 분량의 3분의 1 수준으로 축약
-- "1170자"처럼 입력된 경우 공백 포함 기준 약 1170자에 맞게 조정
-- 목표 기준이 불명확하면 가장 합리적인 기준을 적용하되, 첫 문장에 적용 기준을 간단히 밝혀주세요.
-
-[3. 반드시 유지할 사항]
-- 숫자와 통계 수치
-- 고유명사
-- 핵심 사실관계
-- 정책적 판단의 근거
-- 보고서의 주요 결론
-- 문단의 논리적 흐름
-- 공공기관 보고서에 적합한 공식적 문체
-
-[4. 금지 사항]
-- 새로운 사실, 새로운 수치, 새로운 사례를 임의로 추가하지 마세요.
-- 원문에 없는 정책 효과를 새로 만들어내지 마세요.
-- 숫자나 고유명사를 임의로 바꾸지 마세요.
-- 핵심 결론이 달라지도록 수정하지 마세요.
-- 단순히 문장을 기계적으로 줄이거나 늘리지 말고 보고서 문장으로 자연스럽게 조정해주세요.
-
-[5. 조정 방식]
-- 목표가 축약이면 중복 표현, 장황한 배경 설명, 반복되는 문장을 줄여주세요.
-- 목표가 확장이면 원문에 있는 내용 안에서 설명을 더 명확히 풀어쓰고 문단 연결을 보완해주세요.
-- 새 사실을 추가하지 말고 기존 내용의 범위 안에서만 축약하거나 확장해주세요.
-- 문단 구조가 흐트러지지 않도록 제목과 문단 흐름을 유지해주세요.
-- 조정 후에도 공공기관 내부 보고서처럼 객관적이고 간결한 문체를 유지해주세요.
-
-[6. 보고서 초안]
-${draft}
-
-위 기준에 따라 목표 분량에 맞춘 수정본만 작성해주세요.
-수정 과정 설명은 길게 쓰지 말고, 바로 활용 가능한 보고서 본문 중심으로 출력해주세요.`;
-    }
-
-    function showMessage(messageElement, message, type) {
-      if (!messageElement) return;
-
-      messageElement.textContent = message;
-      messageElement.classList.remove("success", "error");
-
-      if (type) {
-        messageElement.classList.add(type);
+    function validateInputData(data) {
+      if (!data.subject && !data.region) {
+        alert("보고서 주제 또는 지역/분석 범위 중 하나는 입력해주세요.");
+        return false;
       }
+
+      return true;
     }
 
-    function fallbackCopy(textArea) {
+    function copyTextFallback(text) {
+      const textarea = document.createElement("textarea");
+
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+
+      document.body.appendChild(textarea);
+
+      textarea.focus();
+      textarea.select();
+
+      let copied = false;
+
       try {
-        if (!textArea) return false;
-
-        const wasReadonly = textArea.hasAttribute("readonly");
-
-        if (wasReadonly) {
-          textArea.removeAttribute("readonly");
-        }
-
-        textArea.focus();
-        textArea.select();
-        textArea.setSelectionRange(0, textArea.value.length);
-
-        const copied = document.execCommand("copy");
-
-        if (wasReadonly) {
-          textArea.setAttribute("readonly", true);
-        }
-
-        window.getSelection().removeAllRanges();
-        return copied;
+        copied = document.execCommand("copy");
       } catch (error) {
-        if (textArea) {
-          textArea.setAttribute("readonly", true);
-        }
-
-        return false;
+        copied = false;
       }
+
+      document.body.removeChild(textarea);
+
+      return copied;
     }
 
-    async function copyText(textArea, messageElement, successMessage, emptyMessage) {
-      const text = textArea ? textArea.value.trim() : "";
-
-      if (!text) {
-        showMessage(messageElement, emptyMessage, "error");
-        return false;
-      }
-
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
+    async function copyTextToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
           await navigator.clipboard.writeText(text);
-          showMessage(messageElement, successMessage, "success");
           return true;
+        } catch (error) {
+          return copyTextFallback(text);
         }
-
-        const copied = fallbackCopy(textArea);
-
-        if (copied) {
-          showMessage(messageElement, successMessage, "success");
-          return true;
-        }
-
-        showMessage(
-          messageElement,
-          "자동 복사에 실패했습니다. 프롬프트 영역을 직접 선택해 복사해주세요.",
-          "error"
-        );
-
-        return false;
-      } catch (error) {
-        const copied = fallbackCopy(textArea);
-
-        if (copied) {
-          showMessage(messageElement, successMessage, "success");
-          return true;
-        }
-
-        showMessage(
-          messageElement,
-          "브라우저 보안 설정으로 자동 복사에 실패했습니다. 프롬프트 영역을 직접 선택해 복사해주세요.",
-          "error"
-        );
-
-        return false;
       }
+
+      return copyTextFallback(text);
     }
 
-    function openAiSite(url, messageElement, siteName) {
-      const opened = window.open(url, "_blank", "noopener,noreferrer");
+    async function generateAndCopyPrompt(targetUrl) {
+      const data = getInputData();
 
-      if (!opened) {
-        showMessage(
-          messageElement,
-          `${siteName} 새 창 열기가 차단되었습니다. 브라우저 팝업 차단을 해제하거나 직접 접속해주세요.`,
-          "error"
-        );
-      }
-    }
-
-    generateBtn.addEventListener("click", () => {
-      resultPrompt.value = createReportPrompt();
-      showMessage(promptMessage, "AI 보고서 작성용 프롬프트가 생성되었습니다.", "success");
-    });
-
-    copyPromptBtn.addEventListener("click", () => {
-      copyText(
-        resultPrompt,
-        promptMessage,
-        "AI 보고서 작성용 프롬프트가 복사되었습니다.",
-        "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
-      );
-    });
-
-    openChatGPTBtn.addEventListener("click", async () => {
-      const copied = await copyText(
-        resultPrompt,
-        promptMessage,
-        "프롬프트가 복사되었습니다. ChatGPT를 새 창으로 엽니다.",
-        "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
-      );
-
-      if (copied) {
-        openAiSite("https://chatgpt.com/", promptMessage, "ChatGPT");
-      }
-    });
-
-    openGeminiBtn.addEventListener("click", async () => {
-      const copied = await copyText(
-        resultPrompt,
-        promptMessage,
-        "프롬프트가 복사되었습니다. Gemini를 새 창으로 엽니다.",
-        "복사할 프롬프트가 없습니다. 먼저 프롬프트를 생성해주세요."
-      );
-
-      if (copied) {
-        openAiSite("https://gemini.google.com/app", promptMessage, "Gemini");
-      }
-    });
-
-    makeRevisionBtn.addEventListener("click", () => {
-      revisionPrompt.value = createRevisionPrompt();
-      showMessage(revisionMessage, "보고서 초안 수정용 프롬프트가 생성되었습니다.", "success");
-    });
-
-    copyRevisionBtn.addEventListener("click", () => {
-      copyText(
-        revisionPrompt,
-        revisionMessage,
-        "보고서 초안 수정용 프롬프트가 복사되었습니다.",
-        "복사할 수정 프롬프트가 없습니다. 먼저 수정 프롬프트를 생성해주세요."
-      );
-    });
-
-    lengthDraftText.addEventListener("input", updateLengthCount);
-
-    makeLengthPromptBtn.addEventListener("click", async () => {
-      const draft = lengthDraftText.value.trim();
-      const target = targetLength.value.trim();
-
-      if (!draft) {
-        showMessage(
-          lengthMessage,
-          "분량을 조정할 보고서 초안을 먼저 붙여넣어 주세요.",
-          "error"
-        );
+      if (!validateInputData(data)) {
         return;
       }
 
-      if (!target) {
-        showMessage(
-          lengthMessage,
-          "목표 분량을 입력해 주세요. 예: 150%, 50%, 1/3, 1170자",
-          "error"
-        );
+      let openedWindow = null;
+
+      if (targetUrl) {
+        openedWindow = window.open("about:blank", "_blank");
+      }
+
+      latestPrompt = buildOptimizedPrompt(data);
+
+      const copied = await copyTextToClipboard(latestPrompt);
+
+      if (copied) {
+        copyStatusMessage.textContent =
+          "AI 변환 프롬프트가 복사되었습니다. 열린 AI 채팅창에 붙여넣고 실행하세요.";
+        copyStatusMessage.className = "text-sm text-green-700";
+      } else {
+        copyStatusMessage.textContent =
+          "자동 복사에 실패했습니다. 브라우저 권한을 확인하거나 다시 시도해주세요.";
+        copyStatusMessage.className = "text-sm text-red-700";
+      }
+
+      if (targetUrl) {
+        if (openedWindow) {
+          openedWindow.location.href = targetUrl;
+        } else {
+          window.open(targetUrl, "_blank");
+        }
+      }
+    }
+
+    function buildLengthAdjustmentPrompt() {
+      const originalText = finalReportInput.value.trim();
+      const rawTargetLength = targetLengthInput.value.trim() || "1170자";
+      const lengthBasis = lengthBasisSelect.value || "공백 포함";
+
+      if (!originalText) {
+        alert("먼저 보고서 초안을 붙여넣어 주세요.");
+        return null;
+      }
+
+      const countWithSpace = originalText.length;
+      const countWithoutSpace = originalText.replace(/\s/g, "").length;
+      const basisCount = lengthBasis === "공백 제외" ? countWithoutSpace : countWithSpace;
+
+      function parseTargetLength(rawValue, baseCount) {
+        const value = String(rawValue || "")
+          .replace(/,/g, "")
+          .replace(/\s/g, "")
+          .replace(/％/g, "%");
+
+        const percentMatch = value.match(/^(\d+(?:\.\d+)?)%$/);
+        if (percentMatch) {
+          return Math.max(1, Math.round(baseCount * (Number(percentMatch[1]) / 100)));
+        }
+
+        const multipleMatch = value.match(/^(\d+(?:\.\d+)?)(배|x|X)$/);
+        if (multipleMatch) {
+          return Math.max(1, Math.round(baseCount * Number(multipleMatch[1])));
+        }
+
+        const numberMatch = value.match(/(\d+(?:\.\d+)?)(?:자|글자)?/);
+        if (numberMatch) {
+          return Math.max(1, Math.round(Number(numberMatch[1])));
+        }
+
+        return null;
+      }
+
+      const targetCount = parseTargetLength(rawTargetLength, basisCount);
+
+      if (!targetCount) {
+        alert("목표 분량을 1170자, 80%, 1.2배처럼 입력해 주세요.");
+        return null;
+      }
+
+      const toleranceRate = 0.02;
+      const lowerLimit = Math.max(1, Math.ceil(targetCount * (1 - toleranceRate)));
+      const upperLimit = Math.max(lowerLimit, Math.floor(targetCount * (1 + toleranceRate)));
+      const adjustmentDirection = targetCount < basisCount
+        ? "축약"
+        : targetCount > basisCount
+          ? "확장"
+          : "유지";
+
+      return `
+[글자수 조정 AI 최종 조정 프롬프트]
+
+너는 한국어 보고서 전문 편집자다. 아래 원문을 목표 글자 수에 맞게 다시 편집하라.
+
+[최우선 규칙]
+
+목표 글자 수 충족은 본 프롬프트의 모든 지시사항보다 우선한다.
+
+형식 유지, 문체 유지, 문단 유지, 문장 유지, 내용 보존, 숫자 보존 등의 조건은 목표 글자 수 충족 범위 내에서 적용한다.
+
+목표 글자 수를 충족하지 못한 결과는 실패로 간주한다.
+
+편집 완료 후 반드시 결과물의 실제 글자 수를 다시 점검하고, 목표 범위를 벗어나면 재편집한다.
+
+최종 결과는 목표 글자 수 기준 ±2% 범위 안에 들어와야 한다.
+
+목표 분량에 도달하기 위해 필요한 경우 다음 작업을 적극 수행한다.
+
+- 중복 문장 삭제
+- 유사 의미 표현 통합
+- 장황한 표현 축약
+- 조사 및 수식어 최소화
+- 문장 내부 표현 압축
+- 의미가 변하지 않는 범위의 문장 재구성
+- 축약어 및 간결 표현 사용
+
+단, 숫자, 금액, 날짜, 비율, 고유명사, 핵심 사실, 핵심 결론은 유지한다.
+
+목표 글자 수를 초과하는 경우에는 형식 보존보다 분량 충족을 우선한다.
+
+목표 글자 수가 부족한 경우에는 새로운 사실을 추가하지 말고 기존 내용을 확장하여 분량을 맞춘다.
+
+결과 제출 전 최종 글자 수가 목표 범위 내에 있는지 다시 검증한 후 제출한다.
+
+────────────────────
+1. 이번 작업의 확정 분량 조건
+────────────────────
+- 사용자가 입력한 목표 분량: ${rawTargetLength}
+- 글자 수 기준: ${lengthBasis}
+- 원문 글자 수(공백 포함): ${countWithSpace.toLocaleString()}자
+- 원문 글자 수(공백 제외): ${countWithoutSpace.toLocaleString()}자
+- 적용 기준 원문 글자 수: ${basisCount.toLocaleString()}자
+- 산정된 목표 글자 수: ${targetCount.toLocaleString()}자
+- 허용 최저 글자 수: ${lowerLimit.toLocaleString()}자
+- 허용 최고 글자 수: ${upperLimit.toLocaleString()}자
+- 조정 방향: ${adjustmentDirection}
+
+최종 결과문은 반드시 ${lowerLimit.toLocaleString()}자 이상 ${upperLimit.toLocaleString()}자 이하가 되어야 한다.
+${targetCount.toLocaleString()}자에 최대한 가깝게 맞추되, 최소·최대 허용 범위를 벗어나면 실패다.
+
+────────────────────
+2. 글자 수 계산 기준
+────────────────────
+- 공백 포함 기준: 한글, 영문, 숫자, 문장부호, 띄어쓰기, 줄바꿈을 모두 1자로 계산한다.
+- 공백 제외 기준: 띄어쓰기, 줄바꿈, 탭 등 모든 공백 문자를 제외하고 계산한다.
+- 이번 작업에는 반드시 위에서 지정한 "${lengthBasis}" 기준을 적용한다.
+- 출력 전 결과문 글자 수를 같은 기준으로 직접 계산한다.
+- 계산 결과가 ${lowerLimit.toLocaleString()}자 미만이면 기존 내용을 새 사실 없이 더 풀어 써서 재편집한다.
+- 계산 결과가 ${upperLimit.toLocaleString()}자를 초과하면 반복·수식·부연을 더 줄여 재편집한다.
+- 최종 답변에는 계산표, 계산 과정, 글자 수 설명을 쓰지 않는다.
+
+────────────────────
+3. 내부 작업 절차
+────────────────────
+아래 절차는 반드시 내부적으로 수행하되, 사용자에게 과정은 출력하지 않는다.
+
+1) 원문을 읽고 핵심 사실, 숫자, 고유명사, 결론을 표시한다.
+2) 목표 글자 수와 허용 범위를 확인한다.
+3) 1차 편집본을 작성한다.
+4) 1차 편집본의 글자 수를 "${lengthBasis}" 기준으로 계산한다.
+5) 허용 범위를 벗어나면 2차 편집한다.
+6) 다시 글자 수를 계산한다.
+7) 허용 범위에 들어올 때까지 압축 또는 확장을 반복한다.
+8) 최종 편집본만 출력한다.
+
+────────────────────
+4. 축약 규칙
+────────────────────
+목표보다 길면 아래 순서로 적극 줄인다.
+
+1) 중복 문장 삭제
+2) 같은 의미의 표현 통합
+3) 관성적 연결어 삭제
+4) 장황한 배경 설명 축약
+5) 수식어, 부사, 조사 최소화
+6) 문장 내부 표현 압축
+7) 사례가 여러 개면 핵심 사례 중심으로 압축
+8) 결론은 유지하되 짧게 정리
+9) 그래도 길면 형식보다 분량 충족을 우선하여 문단별 설명량을 줄임
+
+────────────────────
+5. 확장 규칙
+────────────────────
+목표보다 짧으면 새 사실을 만들지 말고 아래 방식으로만 늘린다.
+
+1) 원문에 이미 있는 의미를 더 명확히 풀어 쓴다.
+2) 생략된 인과관계를 원문 범위 안에서 보완한다.
+3) 숫자와 사례의 의미를 원문 범위 안에서 설명한다.
+4) 문단 간 연결 문장을 보완한다.
+5) 결론의 판단 근거를 원문 내용 안에서 조금 더 구체화한다.
+
+절대 새로운 지역, 단지, 사례, 수치, 날짜, 전망, 외부 정보를 추가하지 않는다.
+
+────────────────────
+6. 반드시 유지할 내용
+────────────────────
+- 숫자, 금액, 날짜, 비율, 수치, 단위
+- 고유명사, 지역명, 기관명, 단지명, 사업명
+- 핵심 사실, 핵심 근거, 핵심 결론
+- 원문의 기본 문체와 보고서식 표현
+- 제목, 소제목, 번호 체계, 항목 체계는 가능한 유지
+
+단, 위 요소도 목표 글자 수 달성을 방해하는 경우에는 핵심 의미가 훼손되지 않는 선에서 표현량을 줄인다.
+
+────────────────────
+7. 금지 사항
+────────────────────
+- 허용 범위를 벗어난 결과 출력 금지
+- 글자 수 계산 결과 출력 금지
+- "아래는", "수정했습니다", "요약하면" 같은 안내 문장 금지
+- 원문에 없는 새 사실 추가 금지
+- 숫자, 금액, 날짜, 비율, 고유명사 임의 변경 금지
+- 편집 이유, 해설, 주석 출력 금지
+
+────────────────────
+8. 출력 방식
+────────────────────
+- 최종 편집본만 출력한다.
+- 설명, 해설, 주석, 변경 이유, 계산 과정은 출력하지 않는다.
+- 결과문은 반드시 ${lowerLimit.toLocaleString()}자 이상 ${upperLimit.toLocaleString()}자 이하로 작성한다.
+- 가능하면 ${targetCount.toLocaleString()}자에 가장 가깝게 맞춘다.
+
+[원문]
+${originalText}
+`;
+    }
+
+    async function generateAndCopyAdjustmentPrompt(targetUrl) {
+      const adjustmentPrompt = buildLengthAdjustmentPrompt();
+
+      if (!adjustmentPrompt) {
         return;
       }
 
-      updateLengthCount();
-      lengthPrompt.value = createLengthPrompt();
+      let openedWindow = null;
 
-      await copyText(
-        lengthPrompt,
-        lengthMessage,
-        "글자 수 조정 프롬프트가 생성되어 클립보드에 복사되었습니다.",
-        "복사할 글자 수 조정 프롬프트가 없습니다."
-      );
+      if (targetUrl) {
+        openedWindow = window.open("about:blank", "_blank");
+      }
+
+      const copied = await copyTextToClipboard(adjustmentPrompt);
+
+      if (copied) {
+        adjustPromptStatusMessage.textContent =
+          "글자수 조정 프롬프트가 복사되었습니다. 열린 AI 채팅창에 붙여넣고 실행하세요.";
+        adjustPromptStatusMessage.className = "text-sm text-green-700";
+      } else {
+        adjustPromptStatusMessage.textContent =
+          "자동 복사에 실패했습니다. 브라우저 권한을 확인하거나 다시 시도해주세요.";
+        adjustPromptStatusMessage.className = "text-sm text-red-700";
+      }
+
+      if (targetUrl) {
+        if (openedWindow) {
+          openedWindow.location.href = targetUrl;
+        } else {
+          window.open(targetUrl, "_blank");
+        }
+      }
+    }
+
+    function updateDraftCharacterCount() {
+      const text = finalReportInput.value;
+
+      const countWithSpace = text.length;
+      const countWithoutSpace = text.replace(/\s/g, "").length;
+
+      draftCountWithSpace.textContent = `띄어쓰기 포함 ${countWithSpace.toLocaleString()}자`;
+      draftCountWithoutSpace.textContent = `띄어쓰기 제외 ${countWithoutSpace.toLocaleString()}자`;
+    }
+
+    function updateFinalReportCharacterCount() {
+      const text = finalReportBox.value;
+
+      const countWithSpace = text.length;
+      const countWithoutSpace = text.replace(/\s/g, "").length;
+
+      finalCountWithSpace.textContent = `띄어쓰기 포함 ${countWithSpace.toLocaleString()}자`;
+      finalCountWithoutSpace.textContent = `띄어쓰기 제외 ${countWithoutSpace.toLocaleString()}자`;
+    }
+
+    async function copyFinalReport() {
+      const finalReport = finalReportBox.value.trim();
+
+      if (!finalReport) {
+        alert("최종 보고서를 붙여넣어 주세요.");
+        return;
+      }
+
+      const copied = await copyTextToClipboard(finalReport);
+
+      if (copied) {
+        alert("최종 보고서가 복사되었습니다.");
+      } else {
+        alert("복사에 실패했습니다. 최종 보고서 내용을 직접 복사해주세요.");
+      }
+    }
+
+    addSourceLinkBtn.addEventListener("click", addSourceLinkInput);
+    addSampleReportBtn.addEventListener("click", addSampleReportInput);
+
+    sourceLinksContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("remove-source-link-btn")) {
+        removeSourceLinkInput(event.target);
+      }
     });
 
-    updateLengthCount();
+    sampleReportsContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("remove-sample-report-btn")) {
+        removeSampleReportInput(event.target);
+      }
+    });
+
+    copyPromptOnlyBtn.addEventListener("click", function () {
+      generateAndCopyPrompt(null);
+    });
+
+    openChatGptBtn.addEventListener("click", function () {
+      generateAndCopyPrompt(CHATGPT_URL);
+    });
+
+    openGeminiBtn.addEventListener("click", function () {
+      generateAndCopyPrompt(GEMINI_URL);
+    });
+
+    copyAdjustPromptBtn.addEventListener("click", function () {
+      generateAndCopyAdjustmentPrompt(null);
+    });
+
+    openAdjustChatGptBtn.addEventListener("click", function () {
+      generateAndCopyAdjustmentPrompt(CHATGPT_URL);
+    });
+
+    openAdjustGeminiBtn.addEventListener("click", function () {
+      generateAndCopyAdjustmentPrompt(GEMINI_URL);
+    });
+
+    trendDirectionSelect.addEventListener("change", updateTrendPreview);
+    trendRateInput.addEventListener("input", updateTrendPreview);
+
+    finalReportInput.addEventListener("input", updateDraftCharacterCount);
+    finalReportBox.addEventListener("input", updateFinalReportCharacterCount);
+
+    copyFinalReportBtn.addEventListener("click", copyFinalReport);
+
+    addSourceLinkInput();
+    addSampleReportInput();
+    updateDraftCharacterCount();
+    updateFinalReportCharacterCount();
+    updateTrendPreview();
   </script>
 </body>
 </html>
