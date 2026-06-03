@@ -362,26 +362,38 @@
     #openGeminiBtn,
     #openAdjustGeminiBtn {
       background:
-        linear-gradient(135deg, #fbf8ef 0%, #eef1f3 55%, #dfe5e8 100%) !important;
-      color: #3a3429 !important;
-      border: 1px solid rgba(207, 214, 220, 0.88) !important;
-      box-shadow: var(--silver-shadow) !important;
+        linear-gradient(135deg, #ea4335 0%, #8bc34a 48%, #42a5f5 100%) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.42) !important;
+      box-shadow:
+        0 14px 30px rgba(66, 133, 244, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+      font-weight: 800 !important;
+      text-shadow: 0 1px 3px rgba(24, 35, 48, 0.48);
     }
 
     #openGeminiBtn:hover,
     #openAdjustGeminiBtn:hover {
       background:
-        linear-gradient(135deg, #ffffff 0%, #eef1f3 55%, #e0e5e9 100%) !important;
+        linear-gradient(135deg, #f04f42 0%, #96d351 48%, #4db3ff 100%) !important;
+      box-shadow:
+        0 16px 34px rgba(66, 133, 244, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.42) !important;
     }
 
+    #copyPromptOnlyBtn,
     #copyAdjustPromptBtn {
       background:
         linear-gradient(135deg, #f7e4b3 0%, var(--apple-gold) 58%, #d0a957 100%) !important;
       color: #302410 !important;
       border: 1px solid rgba(216, 180, 95, 0.58) !important;
-      box-shadow: 0 14px 28px rgba(168, 120, 36, 0.15) !important;
+      box-shadow:
+        0 14px 28px rgba(168, 120, 36, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.58) !important;
+      font-weight: 800 !important;
     }
 
+    #copyPromptOnlyBtn:hover,
     #copyAdjustPromptBtn:hover {
       background:
         linear-gradient(135deg, #f9eac5 0%, #e4c26d 58%, #c79c45 100%) !important;
@@ -458,12 +470,6 @@
               <label class="block font-semibold">3. 참고 자료 링크</label>
               <span class="text-xs text-slate-500">최대 5개</span>
             </div>
-
-            <p class="mb-3 text-xs text-slate-500 leading-relaxed">
-              뉴스 기사, 보도자료, 블로그, 유튜브 영상 링크 등을 입력하세요.
-              AI가 확인 가능한 원문, 영상 제목·설명·자막 또는 transcript를 분석해
-              주요 내용, 핵심 단어, 시장 영향 요인을 보고서에 자연스럽게 반영하도록 프롬프트에 포함합니다.
-            </p>
 
             <div id="sourceLinksContainer" class="space-y-2"></div>
 
@@ -571,7 +577,7 @@
               <button
                 id="copyPromptOnlyBtn"
                 type="button"
-                class="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition text-sm"
+                class="bg-amber-600 text-white font-bold py-3 rounded-xl hover:bg-amber-700 transition text-sm"
               >
                 프롬프트 복사
               </button>
@@ -634,33 +640,39 @@
 
             <div class="bg-amber-50 border border-amber-100 rounded-2xl p-5 mt-4 space-y-4">
               <div>
-                <p class="font-bold text-amber-800">글자수 조정 AI 최종 조정</p>
+                <p class="font-bold text-amber-800">분량 비율 조정 AI 최종 조정</p>
 
                 <p class="text-sm text-amber-900 leading-relaxed mt-1">
-                  보고서 초안을 기준으로 원문 대비 목표 분량 비율에 맞춰 줄이거나 늘리는 편집 프롬프트를 생성합니다.
-                  글자수는 참고용이며, 실제 목표는 원문 대비 분량 비율을 맞추는 것입니다.
+                  보고서 초안을 기준으로 원문 대비 목표 비율에 맞춰 줄이거나 늘리는 편집 프롬프트를 생성합니다.
+                  글자 수 기준 선택은 제거하고, 퍼센트·배수·분수·범위 중 하나로 목표 분량을 지정합니다.
                 </p>
               </div>
 
               <div class="grid md:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-sm font-semibold mb-2">목표 분량</label>
+                  <label class="block text-sm font-semibold mb-2">조정 방식</label>
+                  <select id="volumeModeSelect" class="w-full border rounded-xl p-3 bg-white">
+                    <option value="percent">퍼센트(%)</option>
+                    <option value="range">퍼센트 범위(%)</option>
+                    <option value="multiple">배수(몇 배)</option>
+                    <option value="fraction">분수/비율</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-semibold mb-2">목표 값</label>
                   <input
                     id="targetLengthInput"
                     type="text"
                     class="w-full border rounded-xl p-3"
-                    placeholder="예: 50% / 45~55% / 1/3 / 0.5배 / 1170자"
+                    placeholder="예: 50"
                   />
                 </div>
-
-                <div>
-                  <label class="block text-sm font-semibold mb-2">글자 수 기준</label>
-                  <select id="lengthBasisSelect" class="w-full border rounded-xl p-3 bg-white">
-                    <option value="공백 포함">공백 포함</option>
-                    <option value="공백 제외">공백 제외</option>
-                  </select>
-                </div>
               </div>
+
+              <p id="volumeModeHelpText" class="text-xs text-amber-900 leading-relaxed">
+                퍼센트 모드: 50 또는 150처럼 입력하면 원문 대비 50% 또는 150%로 조정합니다.
+              </p>
 
               <div class="grid md:grid-cols-3 gap-3">
                 <button
