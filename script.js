@@ -27,8 +27,7 @@ const finalCountWithSpace = document.getElementById("finalCountWithSpace");
 const finalCountWithoutSpace = document.getElementById("finalCountWithoutSpace");
 
 const targetLengthInput = document.getElementById("targetLengthInput");
-const volumeModeSelect = document.getElementById("volumeModeSelect");
-const volumeModeHelpText = document.getElementById("volumeModeHelpText");
+const lengthBasisSelect = document.getElementById("lengthBasisSelect");
 
 const copyAdjustPromptBtn = document.getElementById("copyAdjustPromptBtn");
 const openAdjustChatGptBtn = document.getElementById("openAdjustChatGptBtn");
@@ -51,7 +50,7 @@ function createSourceLinkInput(index) {
     <input
       type="text"
       class="source-link-input flex-1 border rounded-xl p-3"
-      placeholder="참고 자료 링크 ${index} 입력"
+      placeholder="뉴스 기사 또는 유튜브 영상 링크 ${index} 입력"
     />
 
     <button
@@ -148,7 +147,7 @@ function refreshDynamicInputs() {
     const input = row.querySelector(".source-link-input");
     const removeBtn = row.querySelector(".remove-source-link-btn");
 
-    input.placeholder = `참고 자료 링크 ${index + 1} 입력`;
+    input.placeholder = `뉴스 기사 또는 유튜브 영상 링크 ${index + 1} 입력`;
 
     if (sourceRows.length === 1) {
       removeBtn.classList.add("hidden");
@@ -360,7 +359,54 @@ ${sampleReportBlock}
 - 입력 자료와 참고 보고서의 형식을 보고 스스로 적합한 보고서 유형과 목차를 추론하세요.
 
 ────────────────────
-4. 입력 자료 배치 지시
+4. 참고 자료 링크 분석 지시
+────────────────────
+
+참고 자료 링크에는 뉴스 기사, 보도자료, 블로그, 유튜브 영상, 공공기관 자료 등이 입력될 수 있습니다.
+링크가 입력된 경우, 보고서 작성 전에 각 링크를 먼저 분석한 뒤 보고서 본문에 필요한 내용만 자연스럽게 반영하세요.
+
+각 링크별로 내부적으로 다음 항목을 확인하세요.
+
+1. 자료 유형
+   - 뉴스 기사, 보도자료, 유튜브 영상, 블로그, 공공기관 자료 등 자료 유형을 구분합니다.
+
+2. 제목, 발행 주체, 날짜
+   - 확인 가능한 경우 제목, 언론사 또는 발행 기관, 작성일 또는 게시일을 파악합니다.
+   - 확인되지 않는 정보는 임의로 만들지 않습니다.
+
+3. 주요 내용
+   - 자료의 핵심 내용을 3~5개 수준으로 압축해 파악합니다.
+   - 단순 요약에 그치지 말고, 보고서 주제와 관련된 내용만 선별합니다.
+
+4. 핵심 단어와 개념
+   - 지역명, 사업명, 정책명, 개발 호재, 거래 동향, 가격 흐름, 수요·공급 변화, 임대료, 공실, 교통, 산업, 상권 등 보고서에 활용 가능한 핵심 단어를 추출합니다.
+   - 핵심 단어는 별도 나열만 하지 말고 보고서 문장 속에 자연스럽게 녹입니다.
+
+5. 수치와 사실관계
+   - 기사 또는 영상에 숫자, 날짜, 비율, 금액, 사업 규모, 기관명, 인용 발언이 있으면 사실 자료로 활용합니다.
+   - 단, 원문에서 확인되지 않은 수치나 발언은 절대 만들지 않습니다.
+
+6. 시장 영향 해석
+   - 해당 자료가 입력된 지역 또는 분석 대상에 어떤 영향을 줄 수 있는지 검토합니다.
+   - 영향이 직접적이면 본문 분석에 반영하고, 간접적이면 “관련 동향으로 참고 가능” 수준으로 신중하게 표현합니다.
+
+유튜브 영상 링크의 경우 다음 기준을 따르세요.
+- 영상 제목, 설명, 자막, transcript, 화면상 확인 가능한 정보가 있으면 이를 분석합니다.
+- 자막 또는 transcript를 확인할 수 없는 경우 영상 내용을 임의로 추정하지 않습니다.
+- 영상의 주장과 확인된 사실을 구분하고, 과장된 표현은 보고서식 객관 문장으로 바꿉니다.
+
+뉴스 기사 링크의 경우 다음 기준을 따르세요.
+- 기사 제목과 본문에서 주요 사실, 이슈, 핵심 키워드, 시장 영향 요인을 추출합니다.
+- 기사 문장을 그대로 복사하지 말고, 보고서 문체에 맞게 재구성합니다.
+- 기사 원문을 확인할 수 없거나 접근이 제한되면 “링크 원문 확인 필요”로 표시하고 사실처럼 단정하지 않습니다.
+
+중요:
+- 참고 자료 링크의 분석 결과를 보고서 앞에 길게 따로 나열하지 마세요.
+- 주요 내용, 핵심 단어, 수치, 시장 영향만 보고서의 검토 배경, 주요 이슈, 현장 분석, 종합 판단에 자연스럽게 반영하세요.
+- 링크 내용을 확인할 수 없으면 링크 제목이나 URL만 보고 내용을 추정하지 마세요.
+
+────────────────────
+5. 입력 자료 배치 지시
 ────────────────────
 
 새 보고서 작성 시 입력 자료를 다음 기준으로 배치하세요.
@@ -372,8 +418,10 @@ ${sampleReportBlock}
    - 지역 개황, 분석 범위, 시장 배경 등 적절한 위치에 반영합니다.
 
 3. 참고 자료 링크
-   - 기사 내용이 제공되지 않은 경우 링크 내용을 임의로 단정하지 않습니다.
-   - “관련 자료로 제시됨”, “추가 확인 필요” 등으로 신중하게 활용합니다.
+   - 링크가 뉴스 기사 또는 유튜브 영상인 경우, 확인 가능한 원문·제목·설명·자막·transcript를 분석해 주요 내용, 핵심 단어, 수치, 시장 영향 요인을 추출합니다.
+   - 분석된 내용은 보고서의 검토 배경, 주요 이슈, 수치 해석, 사례 정리, 종합 판단에 자연스럽게 반영합니다.
+   - 단순히 링크 목록을 나열하지 말고, 보고서 문장 안에서 “관련 보도에서는…”, “제시된 영상 자료에서는…”처럼 신중하게 활용합니다.
+   - 원문 또는 영상 내용을 확인할 수 없는 경우 링크 내용을 임의로 단정하지 않고 “링크 원문 확인 필요” 또는 “영상 내용 추가 확인 필요”로 표시합니다.
 
 4. 핵심 이슈 / 현장 메모
    - 참고 보고서의 주요 이슈, 시장동향, 현장 탐문, 분석 배경 항목에 배치합니다.
@@ -393,7 +441,7 @@ ${sampleReportBlock}
    - 사례가 부족하면 임의로 만들지 말고 “추가 확인 필요”로 표시합니다.
 
 ────────────────────
-5. 최종 출력 지시
+6. 최종 출력 지시
 ────────────────────
 
 최종 결과물은 아래 순서로 작성하세요.
@@ -413,7 +461,7 @@ ${sampleReportBlock}
 - 사용자가 바로 보고서 초안으로 활용할 수 있도록 보고서 본문만 중심으로 작성하세요.
 
 ────────────────────
-6. 작성 원칙
+7. 작성 원칙
 ────────────────────
 
 - 문체는 참고 보고서의 톤을 따릅니다.
@@ -525,7 +573,7 @@ async function generateAndCopyPrompt(targetUrl) {
   }
 }
 
-function countKoreanChars(text, lengthBasis = "공백 포함") {
+function countKoreanChars(text, lengthBasis) {
   const targetText = lengthBasis === "공백 제외"
     ? text.replace(/\s/g, "")
     : text;
@@ -540,110 +588,15 @@ function formatPercentValue(value) {
     : `${percent.toFixed(1)}%`;
 }
 
-function getVolumeModeLabel(mode) {
-  const labels = {
-    percent: "퍼센트(%)",
-    range: "퍼센트 범위(%)",
-    multiple: "배수(몇 배)",
-    fraction: "분수/비율"
-  };
-
-  return labels[mode] || labels.percent;
-}
-
-function getDefaultTargetByMode(mode) {
-  const defaults = {
-    percent: "50",
-    range: "45~55",
-    multiple: "0.5",
-    fraction: "1/2"
-  };
-
-  return defaults[mode] || defaults.percent;
-}
-
-function getPlaceholderByMode(mode) {
-  const placeholders = {
-    percent: "예: 50 또는 150",
-    range: "예: 45~55 또는 145~155",
-    multiple: "예: 0.5 또는 1.5",
-    fraction: "예: 1/2 또는 3/2"
-  };
-
-  return placeholders[mode] || placeholders.percent;
-}
-
-function getHelpTextByMode(mode) {
-  const helpTexts = {
-    percent: "퍼센트 모드: 50 또는 150처럼 입력하면 원문 대비 50% 또는 150%로 조정합니다.",
-    range: "퍼센트 범위 모드: 45~55처럼 입력하면 원문 대비 45%~55% 사이로 조정합니다.",
-    multiple: "배수 모드: 0.5 또는 1.5처럼 입력하면 원문 대비 0.5배 또는 1.5배로 조정합니다.",
-    fraction: "분수/비율 모드: 1/2 또는 3/2처럼 입력하면 원문 대비 1/2 또는 3/2 수준으로 조정합니다."
-  };
-
-  return helpTexts[mode] || helpTexts.percent;
-}
-
-function updateVolumeModeGuide() {
-  const mode = volumeModeSelect.value || "percent";
-  targetLengthInput.placeholder = getPlaceholderByMode(mode);
-  volumeModeHelpText.textContent = getHelpTextByMode(mode);
-}
-
-function buildVolumeTarget(baseCount, mode, targetRatio, description) {
-  const tolerance = 0.05;
-  const lowerRatio = Math.max(0.01, targetRatio - tolerance);
-  const upperRatio = targetRatio + tolerance;
-
-  return {
-    mode,
-    modeLabel: getVolumeModeLabel(mode),
-    targetRatio,
-    lowerRatio,
-    upperRatio,
-    targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
-    lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
-    upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
-    description
-  };
-}
-
-function parseVolumeTarget(rawValue, baseCount, mode) {
+function parseVolumeTarget(rawValue, baseCount) {
   const value = String(rawValue || "")
     .trim()
     .replace(/,/g, "")
     .replace(/\s/g, "")
     .replace(/％/g, "%");
 
-  if (!value) {
-    return null;
-  }
-
-  if (mode === "percent") {
-    const percentMatch = value.match(/^(\d+(?:\.\d+)?)%?$/);
-
-    if (!percentMatch) {
-      return null;
-    }
-
-    const percent = Number(percentMatch[1]);
-    const targetRatio = percent / 100;
-
-    return buildVolumeTarget(
-      baseCount,
-      mode,
-      targetRatio,
-      `원문 대비 약 ${formatPercentValue(targetRatio)}`
-    );
-  }
-
-  if (mode === "range") {
-    const rangeMatch = value.match(/^(\d+(?:\.\d+)?)[~-](\d+(?:\.\d+)?)%?$/);
-
-    if (!rangeMatch) {
-      return null;
-    }
-
+  const rangeMatch = value.match(/^(\d+(?:\.\d+)?)~(\d+(?:\.\d+)?)%$/);
+  if (rangeMatch) {
     let lowerRatio = Number(rangeMatch[1]) / 100;
     let upperRatio = Number(rangeMatch[2]) / 100;
 
@@ -656,8 +609,7 @@ function parseVolumeTarget(rawValue, baseCount, mode) {
     const targetRatio = (lowerRatio + upperRatio) / 2;
 
     return {
-      mode,
-      modeLabel: getVolumeModeLabel(mode),
+      mode: "range",
       targetRatio,
       lowerRatio,
       upperRatio,
@@ -668,30 +620,26 @@ function parseVolumeTarget(rawValue, baseCount, mode) {
     };
   }
 
-  if (mode === "multiple") {
-    const multipleMatch = value.match(/^(\d+(?:\.\d+)?)(?:배|x|X)?$/);
+  const percentMatch = value.match(/^(\d+(?:\.\d+)?)%$/);
+  if (percentMatch) {
+    const targetRatio = Number(percentMatch[1]) / 100;
+    const lowerRatio = Math.max(0.01, targetRatio - 0.05);
+    const upperRatio = targetRatio + 0.05;
 
-    if (!multipleMatch) {
-      return null;
-    }
-
-    const targetRatio = Number(multipleMatch[1]);
-
-    return buildVolumeTarget(
-      baseCount,
-      mode,
+    return {
+      mode: "percent",
       targetRatio,
-      `원문 대비 약 ${targetRatio}배(${formatPercentValue(targetRatio)})`
-    );
+      lowerRatio,
+      upperRatio,
+      targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
+      lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
+      upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
+      description: `원문 대비 약 ${formatPercentValue(targetRatio)}`
+    };
   }
 
-  if (mode === "fraction") {
-    const fractionMatch = value.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
-
-    if (!fractionMatch) {
-      return null;
-    }
-
+  const fractionMatch = value.match(/^(\d+)\/(\d+)$/);
+  if (fractionMatch) {
     const numerator = Number(fractionMatch[1]);
     const denominator = Number(fractionMatch[2]);
 
@@ -700,44 +648,76 @@ function parseVolumeTarget(rawValue, baseCount, mode) {
     }
 
     const targetRatio = numerator / denominator;
+    const lowerRatio = Math.max(0.01, targetRatio * 0.90);
+    const upperRatio = targetRatio * 1.10;
 
-    return buildVolumeTarget(
-      baseCount,
-      mode,
+    return {
+      mode: "fraction",
       targetRatio,
-      `원문 대비 약 ${value} 수준(${formatPercentValue(targetRatio)})`
-    );
+      lowerRatio,
+      upperRatio,
+      targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
+      lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
+      upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
+      description: `현재 문서의 약 ${value} 수준`
+    };
+  }
+
+  const multipleMatch = value.match(/^(\d+(?:\.\d+)?)(배|x|X)$/);
+  if (multipleMatch) {
+    const targetRatio = Number(multipleMatch[1]);
+    const lowerRatio = Math.max(0.01, targetRatio * 0.90);
+    const upperRatio = targetRatio * 1.10;
+
+    return {
+      mode: "multiple",
+      targetRatio,
+      lowerRatio,
+      upperRatio,
+      targetCount: Math.max(1, Math.round(baseCount * targetRatio)),
+      lowerCount: Math.max(1, Math.round(baseCount * lowerRatio)),
+      upperCount: Math.max(1, Math.round(baseCount * upperRatio)),
+      description: `원문 대비 약 ${formatPercentValue(targetRatio)}`
+    };
+  }
+
+  const numberMatch = value.match(/^(\d+(?:\.\d+)?)(?:자|글자)?$/);
+  if (numberMatch) {
+    const targetCount = Math.max(1, Math.round(Number(numberMatch[1])));
+    const targetRatio = targetCount / baseCount;
+    const lowerRatio = Math.max(0.01, targetRatio * 0.90);
+    const upperRatio = targetRatio * 1.10;
+
+    return {
+      mode: "count",
+      targetRatio,
+      lowerRatio,
+      upperRatio,
+      targetCount,
+      lowerCount: Math.max(1, Math.round(targetCount * 0.90)),
+      upperCount: Math.max(1, Math.round(targetCount * 1.10)),
+      description: `참고 글자수 약 ${targetCount.toLocaleString()}자`
+    };
   }
 
   return null;
 }
 
-function getTargetInputErrorMessage(mode) {
-  const messages = {
-    percent: "퍼센트 모드에서는 50 또는 150처럼 입력해 주세요.",
-    range: "퍼센트 범위 모드에서는 45~55 또는 145~155처럼 입력해 주세요.",
-    multiple: "배수 모드에서는 0.5 또는 1.5처럼 입력해 주세요.",
-    fraction: "분수/비율 모드에서는 1/2 또는 3/2처럼 입력해 주세요."
-  };
-
-  return messages[mode] || messages.percent;
-}
-
 function buildLengthAdjustmentPrompt() {
   const originalText = finalReportInput.value.trim();
-  const volumeMode = volumeModeSelect.value || "percent";
-  const rawTargetLength = targetLengthInput.value.trim() || getDefaultTargetByMode(volumeMode);
+  const rawTargetLength = targetLengthInput.value.trim() || "50%";
+  const lengthBasis = lengthBasisSelect.value || "공백 포함";
 
   if (!originalText) {
     alert("먼저 보고서 초안을 붙여넣어 주세요.");
     return null;
   }
 
-  const basisCount = countKoreanChars(originalText, "공백 포함");
-  const volumeTarget = parseVolumeTarget(rawTargetLength, basisCount, volumeMode);
+  const basisCount = countKoreanChars(originalText, lengthBasis);
+  const volumeTarget = parseVolumeTarget(rawTargetLength, basisCount);
 
   if (!volumeTarget) {
-    alert(getTargetInputErrorMessage(volumeMode));
+    alert("목표 분량은 50%, 45~55%, 1/3, 0.5배, 1170자 형식으로 입력해 주세요.");
     return null;
   }
 
@@ -747,25 +727,24 @@ function buildLengthAdjustmentPrompt() {
       ? "확장"
       : "유지 또는 미세 조정";
 
+  const unusedBasis = lengthBasis === "공백 포함" ? "공백 제외" : "공백 포함";
   const targetRatioText = formatPercentValue(volumeTarget.targetRatio);
   const lowerRatioText = formatPercentValue(volumeTarget.lowerRatio);
   const upperRatioText = formatPercentValue(volumeTarget.upperRatio);
 
   return `
-[원문 대비 분량 비율 조정 AI 최종 조정 프롬프트]
+[원문 대비 분량 조정 AI 최종 조정 프롬프트]
 
 너는 한국어 보고서 전문 편집자다.
-아래 원문을 목표 분량 비율에 맞게 편집하라.
+아래 원문을 목표 분량에 맞게 편집하라.
 
 ────────────────────
 [최우선 규칙]
 ────────────────────
 
-이번 작업의 최우선 목표는 특정 글자 수 기준을 맞추는 것이 아니라 원문 대비 분량 비율을 맞추는 것이다.
+이번 작업의 최우선 목표는 정확한 글자 수 자체가 아니라 원문 대비 분량 비율을 맞추는 것이다.
 
-글자 수는 비율 판단을 위한 참고값으로만 사용한다.
-
-공백 포함/공백 제외 같은 글자 수 기준 선택은 사용하지 않는다.
+글자 수는 비율 판단을 위한 참고 기준이며, 결과문의 자연스러움과 보고서 품질을 훼손하지 않는 범위에서 사용한다.
 
 원문 대비 분량 비율이 지정 범위 안에 들어오면 성공으로 간주한다.
 
@@ -775,22 +754,19 @@ function buildLengthAdjustmentPrompt() {
 [이번 작업의 분량 조건]
 ────────────────────
 
-- 조정 방식: ${volumeTarget.modeLabel}
-- 사용자가 입력한 목표 값: ${rawTargetLength}
+- 사용자가 입력한 목표 분량: ${rawTargetLength}
 - 적용된 목표 해석: ${volumeTarget.description}
 - 조정 방향: ${adjustmentDirection}
 
 [분량 산정 기준]
-- 적용 기준: 원문 전체 분량 대비 비율
-- 원문 기준 분량: ${basisCount.toLocaleString()}자(공백 포함 참고값)
+- 적용 기준: ${lengthBasis}
+- 원문 기준 분량: ${basisCount.toLocaleString()}자
 - 목표 참고 분량: 약 ${volumeTarget.targetCount.toLocaleString()}자
 - 허용 범위: 약 ${volumeTarget.lowerCount.toLocaleString()}자 ~ ${volumeTarget.upperCount.toLocaleString()}자
-- 목표 비율: 원문 대비 약 ${targetRatioText}
 - 허용 비율: 원문 대비 ${lowerRatioText} ~ ${upperRatioText}
 
-※ 위 글자 수는 비율 계산을 돕기 위한 공백 포함 참고값이다.
-※ 공백 제외 글자 수는 계산에 사용하지 않는다.
-※ 최종 판단은 글자 수 기준이 아니라 원문 대비 분량 비율 기준으로 한다.
+※ 모든 분량 계산은 ${lengthBasis} 기준으로만 수행한다.
+※ ${unusedBasis} 글자 수는 계산에 사용하지 않는다.
 
 정확한 글자 수 하나에 맞추려고 하지 말고, 원문 대비 분량 비율이 자연스럽게 맞도록 조정한다.
 
@@ -865,7 +841,7 @@ function buildLengthAdjustmentPrompt() {
 출력 전 반드시 내부적으로 다음을 확인한다.
 
 1. 결과문이 원문 대비 ${lowerRatioText} ~ ${upperRatioText} 범위인지 확인한다.
-2. 참고 글자 수로 보면 약 ${volumeTarget.lowerCount.toLocaleString()}자 ~ ${volumeTarget.upperCount.toLocaleString()}자 범위인지 확인한다.
+2. 결과문이 약 ${volumeTarget.lowerCount.toLocaleString()}자 ~ ${volumeTarget.upperCount.toLocaleString()}자 범위인지 확인한다.
 3. 범위를 벗어나면 다시 편집한다.
 4. 검산 과정은 출력하지 않는다.
 
@@ -1002,8 +978,6 @@ openAdjustGeminiBtn.addEventListener("click", function () {
   generateAndCopyAdjustmentPrompt(GEMINI_URL);
 });
 
-volumeModeSelect.addEventListener("change", updateVolumeModeGuide);
-
 trendDirectionSelect.addEventListener("change", updateTrendPreview);
 trendRateInput.addEventListener("input", updateTrendPreview);
 
@@ -1016,5 +990,4 @@ addSourceLinkInput();
 addSampleReportInput();
 updateDraftCharacterCount();
 updateFinalReportCharacterCount();
-updateVolumeModeGuide();
 updateTrendPreview();
